@@ -1,0 +1,95 @@
+include $(JMK_ROOT)/jmk/old/util.mak
+
+# This is the default 'make' commands. Override it if needed.
+MAKE_KERNEL_COMMAND=$(MAKE) -C $(KERNEL_DIR) vmlinux
+MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/pkg/kernel/linux/boot IMG_NAME=$(RG_PROD_STR) $(OPENRG_IMG)
+
+ifdef CONFIG_MIPS_IDT
+  LINUX_BOOTLOADER_DIR=$(CURDIR)/kernel/arch/mips/boot/
+  LINUX_BOOTLOADER_OBJECT=bootldr.o
+endif
+
+RAMDISK_SIZE:=$(call MSIZE,$(COMPRESSED_DISK))
+
+JMK_CLEAN+=$(LINUX_BOOTLOADER_OBJECT) $(OPENRG_IMG) \
+  $(wildcard vmlinuz* vmlinux* *.o *.bin *.strip) \
+  $(OPENRG_PROD) *.inc
+
+VPATH=$(LINUX_BOOTLOADER_DIR):$(CURDIR)
+
+ifdef LINUX_BOOTLOADER_DIR
+  # Include the arch specific bootloader makefile to create the bootloader
+  include $(LINUX_BOOTLOADER_DIR)/Makefile
+endif
+.PHONY : make_image
+
+# For PCBOX we use an external bootloader (lilo) so we let the kernel do the
+# dirty work. For all other archs, we compile the final image here.
+ifneq ($(CONFIG_PCBOX),)
+MAKE_KERNEL_COMMAND=$(MAKE) -C $(KERNEL_DIR) $(OPENRG_IMG)
+MAKE_IMAGE_COMMAND=
+endif
+
+ifneq ($(CONFIG_RG_UML),)
+MAKE_KERNEL_COMMAND=$(MAKE) -C $(KERNEL_DIR) openrg.uml
+MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/vendor/jungo/uml/boot $(OPENRG_IMG)
+endif
+
+# This is a workaround to create the image for IXP425, eventually this should
+# be solved in a more elegent fashion 
+ifneq ($(CONFIG_ARCH_CX8620X)$(CONFIG_ARCH_SL2312)$(CONFIG_ARCH_KS8695),)
+  $(error FIX ME)
+else
+  ifeq ($(CONFIG_ARM)-$(CONFIG_ARCH_AVALANCHE),y-)
+      MAKE_KERNEL_COMMAND=$(MAKE) -C $(KERNEL_DIR) zImage
+  endif
+  ifneq ($(CONFIG_ARCH_COMCERTO),)
+    ZIMAGE=$(CURDIR)/kernel/arch/arm/boot/zImage
+    MAKE_IMAGE_COMMAND=cp -f $(ZIMAGE) $(OPENRG_IMG)
+  endif
+endif
+
+ifeq ($(CONFIG_BROADCOM_9636X)-$(CONFIG_RG_RGLOADER),y-y)
+  ifndef CONFIG_RG_MAINFS_IN_FLASH
+    MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/vendor/broadcom/bcm9636x/boot $(OPENRG_IMG)
+  endif
+endif
+
+ifdef CONFIG_BROADCOM_9338X
+  ifndef CONFIG_RG_MAINFS_IN_FLASH
+    MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/vendor/broadcom/bcm9338x/boot $(OPENRG_IMG)
+  endif
+endif
+
+ifdef CONFIG_BOOTLDR_UBOOT
+  ifndef CONFIG_RG_MAINFS_IN_FLASH
+    MAKE_IMAGE_COMMAND=$(MAKE) -C $(JMK_ROOT)/pkg/boot/u-boot $(OPENRG_IMG)
+  endif
+endif
+
+make_kernel:
+	$(MAKE_KERNEL_COMMAND)
+
+make_image: make_kernel
+	$(MAKE_IMAGE_COMMAND)
+
+$(OPENRG_IMG): make_kernel
+
+ifndef CONFIG_RG_GPL
+$(OPENRG_IMG): make_image 
+endif
+
+# Compile LINUX_BOOTLOADER_OBJECT twice. First with dummy variable values.
+# Forcing $(LINUX_BOOTLOADER_OBJECT) to recompile.
+$(LINUX_BOOTLOADER_OBJECT): dummy
+
+real_boot_obj:
+	$(MAKE) $(LINUX_BOOTLOADER_OBJECT).bin
+
+STRIP_FLAGS=-R .comment -R .note
+
+$(LINUX_BOOTLOADER_OBJECT).strip : $(LINUX_BOOTLOADER_OBJECT) dummy
+	$(STRIP) $(STRIP_FLAGS) $< -o $@
+
+$(LINUX_BOOTLOADER_OBJECT).bin: $(LINUX_BOOTLOADER_OBJECT).strip dummy
+	$(OBJCOPY) -O binary $< $@

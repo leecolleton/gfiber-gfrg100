@@ -1,0 +1,15 @@
+/Config.in/1.1.1.1.2.2/Tue Oct 18 23:52:58 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/Kconfig/1.1.1.1.2.2/Tue Oct 18 23:52:58 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/Makefile/1.1.1.1.2.3/Thu Jun 14 22:45:22 2012/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/criov.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/crypto.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/cryptodev.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/cryptodev.h/1.1.1.1.2.3/Thu Jun 14 22:45:22 2012/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/cryptosoft.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/ocf-bench.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/ocf-compat.h/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/random.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/rndtest.c/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/rndtest.h/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/uio.h/1.1.1.1.2.2/Tue Oct 18 23:52:59 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+D/ocfnull////

@@ -1,0 +1,38 @@
+OUTPUT_ARCH(powerpc:common)
+
+SECTIONS
+{
+  . = + SIZEOF_HEADERS;
+  .text : {
+    _stext = .;
+    *(.text)
+    *(.rodata .rodata.* .rdata .rodata.str1.4)
+    *(.data*)
+    *(.data1)
+    *(.sdata)
+    *(.sdata2)
+    *(.ctors)
+    *(.dtors)
+    _SDA_BASE_ = .;
+    _SDA2_BASE_ = .;
+    _rofs_start = .;
+    *(.rofs)
+    _rofs_end = .;
+    _etext = .;
+  }
+  .kernel : {
+    _compressed_kernel_start = .;
+    *(.compressed_kernel)
+    _compressed_kernel_end = .;
+  }
+  .reginfo : { *(.reginfo) }  
+    .bss : {
+    _bss_start = .;
+    *(.bss)
+    *(.bss2)
+    *(.sbss)
+    *(.sbss2)
+    _bss_end = .;
+    malloc_start = .;
+  }
+}

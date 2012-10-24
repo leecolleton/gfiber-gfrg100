@@ -1,0 +1,6 @@
+.top_level
+.configure
+config.status
+gmp.created_by_configure.mak
+libgmp.so.2.0.2
+shared

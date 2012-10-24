@@ -1,0 +1,2 @@
+JMK_CFLAGS+=-I$(JMKE_BUILDDIR)/pkg/include/libnl -D_GNU_SOURCE \
+  -DSYSCONFDIR=\"/etc\" -D__STDC_VERSION__=199901L

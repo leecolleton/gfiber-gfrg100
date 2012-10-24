@@ -1,0 +1,9 @@
+JMK_ROOT=../../../../../..
+include $(JMK_ROOT)/envir.mak
+
+JMK_MOD_O_TARGET=libdes.o
+
+JMK_O_OBJS=cbc_enc.o ecb_enc.o des_enc.o fcrypt_b.o fcrypt.o set_key.o
+
+include $(JMKE_MK)
+

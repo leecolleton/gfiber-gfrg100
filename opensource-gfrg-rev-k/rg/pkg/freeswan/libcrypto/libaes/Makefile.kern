@@ -1,0 +1,9 @@
+JMK_ROOT=../../../../../../../
+include $(JMK_ROOT)/envir.mak
+
+JMK_MOD_O_TARGET=libaes.o
+JMK_CFLAGS_$(JMK_MOD_O_TARGET)+=-I../../libcrypto/include
+JMK_O_OBJS_$(JMK_MOD_O_TARGET)=aes_cbc.o aes.o
+
+include $(JMKE_MK)
+

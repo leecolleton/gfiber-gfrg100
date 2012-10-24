@@ -1,0 +1,127 @@
+JMK_SUBDIRS=vendor pkg
+
+ifneq ($(filter config archconfig,$(MAKECMDGOALS)),)
+  ifdef ROOT_CONFIG_SECOND_PHASE
+    JMK_ARCHCONFIG_SUBDIRS=$(if $(CONFIG_RG_OS),os) vendor pkg
+  else
+    # No subdir in the first phase
+    JMK_SUBDIRS=
+  endif
+endif
+
+ifndef CONFIG_RG_JPKG_SRC
+  # XXX This is a hack: libc should move to pkg/Makefile
+  __pkg_libc+=$(if $(CONFIG_ULIBC),$(if $(ULIBC_IN_TOOLCHAIN),,$(ULIBC_DIR)))
+  __pkg_libc+=$(if $(CONFIG_GLIBC),$(if $(GLIBC_IN_TOOLCHAIN),,pkg/glibc))
+  ifneq ($(strip $(__pkg_libc)),)
+    ifeq ($(CONFIG_RG_JPKG_BUILD_LIBC),y)
+      NEED_MAKE_LIBC=y
+    else
+      ifeq ($(CONFIG_RG_JPKG_SRC)$(CONFIG_RG_BUILD_LOCAL_TARGETS_ONLY),)
+	NEED_MAKE_LIBC=y
+      endif
+    endif
+  endif
+else
+  JMK_SUBDIRS+=bootloaders
+endif
+ifneq ($(JMKE_DOING_MAKE_CONFIG),)
+  include $(JMK_ROOT)/config_root.mak
+endif
+
+JMK_CLEAN+=$(OPENRG_RMT_UPDATE_IMG) $(OPENRG_IMG)
+ifdef CONFIG_ARCH_BCM947_CYBERTAN
+  JMK_CLEAN+=code.bin
+endif
+
+# export all but jmk/old/make_cd.mak and bootldr.mak
+JMK_CD_EXPORTED_FILES+=Makefile.main envir.mak rg_config.sh LICENSE \
+  config_root.mak config_root_first_phase.mak config_root_first_phase_env.mak \
+  config_root_second_phase.mak create_includes.mak rmt.mak \
+  \
+  jmk/jmk.txt \
+  jmk/build_dir_env_root.mak jmk/build_dir_env_subdir.mak \
+  jmk/clean_root_end.mak jmk/compile_root_end.mak jmk/config_env_root.mak \
+  jmk/config_env_subdir.mak jmk/config_root_end.mak jmk/debug_root.mak \
+  jmk/dirs_subdir.mak jmk/envir_subdirs_root.mak jmk/envir_subdirs_subdir.mak \
+  jmk/env_root.mak jmk/env_subdir.mak jmk/export_root_end.mak \
+  jmk/export_subdir.mak jmk/flags_env_root.mak jmk/flags_env_subdir.mak \
+  jmk/flags_root_end.mak jmk/flags_subdir.mak jmk/general_dep_root_end.mak \
+  jmk/jpkg_root_end.mak jmk/jpkg_subdir.mak jmk/jpkg_target_root_end.mak \
+  jmk/lang_env_root.mak jmk/lang_root_end.mak jmk/lang_subdir.mak \
+  jmk/legacy_dependencies.mak jmk/legacy_env_root.mak jmk/legacy_root_end.mak \
+  jmk/list_vars_root_end.mak jmk/locations_root.mak \
+  jmk/log_entity_root_end.mak jmk/mk_funcs.sh jmk/mod2stat_root_end.mak \
+  jmk/multiple_root_end.mak jmk/multiple_subdir.mak jmk/osap_root_end.mak \
+  jmk/ramdisk_env_root.mak jmk/ramdisk_root_end.mak jmk/rg_root.mak \
+  jmk/rg_subdir.mak jmk/sanity_check.mak jmk/sec_perm_root_end.mak \
+  jmk/subdirs_root.mak jmk/target_binfmt_elf.mak jmk/target_binfmt_flat.mak \
+  jmk/targets_subdir.mak jmk/test_root_end.mak jmk/utils_env_root.mak \
+  jmk/build_osap_module.sh jmk/dlm_env_root.mak jmk/dlm_root_end.mak \
+  jmk/dlm_subdir.mak \
+  \
+  jmk/old/build_dir_env.mak jmk/old/clean.mak jmk/old/compile.mak \
+  jmk/old/config_env.mak jmk/old/config.mak jmk/old/dirs.mak jmk/old/docs.mak \
+  jmk/old/envir.subdirs.mak jmk/old/export.mak jmk/old/flags_env.mak \
+  jmk/old/flags.mak jmk/old/general_dep.mak jmk/old/jpkg.mak \
+  jmk/old/jpkg_target.mak jmk/old/lang_env.mak jmk/old/lang.mak \
+  jmk/old/locations.mak jmk/old/log_entity.mak jmk/old/mk_funcs.sh \
+  jmk/old/mod2stat.mak jmk/old/multiple.mak jmk/old/objs.mak jmk/old/osap.mak \
+  jmk/old/ramdisk_env.mak jmk/old/ramdisk.mak jmk/old/ramdisk_root.mak \
+  jmk/old/rg.mak jmk/old/sec_perm.mak jmk/old/target_binfmt_elf.mak \
+  jmk/old/target_binfmt_flat.mak jmk/old/targets.mak jmk/old/test.mak \
+  jmk/old/util.mak
+
+ifeq ($(DIST_TYPE),BOOTLDR)
+  include $(JMK_ROOT)/bootldr.mak
+endif
+
+CD_DISTRIBUTION_NAME_FILE=$(DISTRIBUTION_NAME_FILE:$(JMK_ROOT)%=$(JPKG_DIR)%)
+
+include $(JMK_ROOT)/rmt.mak
+
+ifeq ($(CONFIG_I386_BOCHS),y)
+	pkg/external/bochs.sh update $(CONFIG_RG_OS)
+endif
+
+JMK_JPKG_LAST_TASKS+=$(CD_DISTRIBUTION_NAME_FILE)
+
+$(CD_DISTRIBUTION_NAME_FILE):
+	@$(JMKE_MKDIR) $(dir $(CD_DISTRIBUTION_NAME_FILE))
+	@echo $(DIST) > $(CD_DISTRIBUTION_NAME_FILE)
+
+ifdef JPKG_DISTS
+  JMK_JPKG_LAST_TASKS+=build_jpkg_target
+build_jpkg_target:
+	for d in $(subst :, ,$(JPKG_DISTS)) ; do \
+	  echo "Build JPKG_DIST: $$d" && cd $(JPKG_DIR) && \
+	  $(MAKE) config DIST=$$d BUILD=build.$$d JMK_ROOT=$(JPKG_DIR) && \
+	  $(MAKE) BUILD=build.$$d JMK_ROOT=$(JPKG_DIR); \
+	done
+endif
+
+# XXX Need to clean this up.
+-include $(JMK_ROOT)/jmk/old/make_cd.mak
+
+$(call JMKE_INCLUDE_RULES)
+
+ifeq ($(JMKE_DOING_MAKE_CONFIG),)
+  ifdef NEED_MAKE_LIBC
+    # A hack for compiling libc before anything else. MUST be after including 
+    # $(JMKE_INCLUDE_RULES).
+    # Note: When changing ulibc code, it will NOT recompile. You need to delete
+    # $(RG_LIB)/libc_so.a
+
+    $(ALL_DEPS) $(ALL_OBJS) $(cur_legacy_subdirs_targets): $(RG_LIB)/libc_so.a
+
+    # adding dep to .PHONY already happend but we want to filter it.
+    internal_phony_targets+=$(RG_LIB)/libc_so.a
+
+    $(RG_LIB)/libc_so.a $(RG_LIB)libutil.a $(RG_LIB)libcrypt.a \
+      $(JMKE_BUILDDIR)/$(ULIBC_DIR)/lib/libdl.so: $(JMKE_BUILDDIR)/.make_libc
+
+    $(JMKE_BUILDDIR)/.make_libc:
+	$(MAKE) -C $(JMKE_BUILDDIR)/$(__pkg_libc) VERBOSE=1 
+	touch $@
+  endif
+endif

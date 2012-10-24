@@ -1,0 +1,19 @@
+include .config
+include scripts/Makefile.lib
+
+JMK_ROOT=$(srctree)/../..
+include $(JMK_ROOT)/envir.mak
+
+# find all modules listed in $(MODVERDIR)/
+__modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+modules   := $(patsubst %.o,%.ko, $(wildcard $(__modules:.ko=.o)))
+
+JMK_RAMDISK_KERNEL_MODULES+=$(modules)
+
+# copy them to ramdisk by making our "ramdisk" target
+.PHONY: all
+all: ramdisk 
+
+include $(JMKE_COPY_DB_ENVIR)
+include $(JMKE_COPY_DB)
+

@@ -1,0 +1,8 @@
+build
+MCONFIG
+config.log
+config.status
+config.cache
+MAKELOG
+
+

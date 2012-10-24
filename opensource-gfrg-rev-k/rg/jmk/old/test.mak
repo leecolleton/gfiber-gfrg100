@@ -1,0 +1,10 @@
+UNITTEST_OPT=$(if $(CONFIG_RG_VALGRIND_LOCAL_TARGET),$(VALGRIND_CMD))
+
+RUN_UNITTEST_CMD=$(foreach t,$(JMK_RUN_UNITTEST),$(UNITTEST_SPAWNER) $(UNITTEST_OPT) ./local_$(t) &&) true
+
+run_unittests: $(RUN_UNITTESTS_SUBDIRS_)
+	$(if $(JMK_RUN_UNITTEST_DATA),$(JMKE_LN) $(addprefix $(JMKE_PWD_SRC)/,$(JMK_RUN_UNITTEST_DATA)) .)
+	$(if $(JMK_RUN_UNITTEST),$(RUN_UNITTEST_CMD))
+
+run_tests: run_unittests
+

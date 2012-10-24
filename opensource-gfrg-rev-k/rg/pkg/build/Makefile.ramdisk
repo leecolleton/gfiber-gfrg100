@@ -1,0 +1,40 @@
+# Do we want to move this file to rg/jmk/?
+
+
+ifdef IN_RGSRC_ROOT
+  ifeq ($(JMKE_DOING_MAKE_CONFIG),)
+    # ramdisk command implementation that needs to be executed only once from
+    # the root makefile.
+    clean_ramdisk_dir:
+	rm -rf $(DISK_IMAGE_DIR)
+
+    make_ramdisk_img: $(JMKE_BUILDDIR)/pkg/build/make_ramdisk.sh
+    ifdef CONFIG_RG_MKLIBS
+	perl $(JMK_ROOT)/pkg/build/gc.pl 
+    endif
+    ifdef CONFIG_RG_OS_LINUX
+	$(JMKE_BUILDDIR)/pkg/build/make_ramdisk.sh
+      ifdef CONFIG_RG_OS_LINUX_22
+	ifdef CONFIG_MIPS
+	  # TODO: The Mips structure-at-the-beginning-of-ramdisk quirk.
+	  # Remove this and change linux/arch/mips/kernel/setup.c
+	mv $(COMPRESSED_DISK) $(COMPRESSED_DISK).tmp
+	$(JMKE_BUILDDIR)/pkg/build/mips_initrd $(COMPRESSED_DISK).tmp \
+	  $(COMPRESSED_DISK)
+	rm -f $(COMPRESSED_DISK).tmp
+	endif
+      endif
+    endif
+    ifdef CONFIG_RG_EFSS
+	$(JMKE_BUILDDIR)/pkg/build/mkefs
+	$(CC) $(JMK_CFLAGS) -c $(JMKE_BUILDDIR)/pkg/build/efss_data.c
+	$(AR) $(JMKE_BUILDDIR)/pkg/build/cruv \
+	  $(JMKE_BUILDDIR)/pkg/build/libramdisk.a \
+	    $(JMKE_BUILDDIR)/pkg/build/efss_main.o \
+	    $(JMKE_BUILDDIR)/pkg/build/efss_data.o
+    endif
+    ifdef CONFIG_RG_JNET_SERVER
+	$(JMKE_BUILDDIR)/pkg/build/make_packages.sh
+    endif
+  endif
+endif

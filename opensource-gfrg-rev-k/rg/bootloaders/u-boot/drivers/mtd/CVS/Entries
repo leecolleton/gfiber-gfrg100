@@ -1,0 +1,14 @@
+/Makefile/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/at45.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/cfi_flash.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/cfi_mtd.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/dataflash.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/jedec_flash.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/mtdconcat.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/mtdcore.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/mtdpart.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+/mw_eeprom.c/1.1.1.1.2.2/Wed Oct 19 00:42:07 2011/-ko/Ttag-fibertec-rg-6_0_7_1_4_1_2_8
+D/nand////
+D/onenand////
+D/spi////
+D/ubi////

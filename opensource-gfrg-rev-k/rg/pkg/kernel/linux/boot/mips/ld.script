@@ -1,0 +1,40 @@
+OUTPUT_ARCH(mips)
+SECTIONS
+{
+  .text : {
+    _stext = .;
+    *(.text)
+    *(.text.*)
+    *(.rodata .rodata.* .rdata)
+    *(.data)
+    *(.data.*)
+    _etext = .;
+    _compressed_kernel_start = .;
+    *(.compressed_kernel)
+    _compressed_kernel_end = .;
+  }
+  __ex_table : { *(__ex_table) } 
+  .reginfo : {
+    *(.reginfo)
+    *(.reginfo.*)
+  }  
+  . = ALIGN(4096);
+  _rofs_start = .;
+  .rofs : { *(.rofs) }
+    . = ALIGN(4096);
+  _rofs_end = .;
+  .bss : {
+    _bss_start = .;
+    *(.bss)
+    *(.bss.*)
+    _bss_end = .;
+    malloc_start = .;
+  }
+
+  /* Sections to be discarded */
+  /DISCARD/ :
+  {
+    *(.MIPS.options)
+  }
+}
+

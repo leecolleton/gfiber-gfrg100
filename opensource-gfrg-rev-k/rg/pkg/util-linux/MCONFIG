@@ -1,0 +1,113 @@
+# MCONFIG -- Configuration stuff for util-linux
+# Created: Sat Feb  4 15:50:30 1995
+# Copyright 1995 Rickard E. Faith (faith@cs.unc.edu)
+
+# For a user-mode install, make (at least) three changes:
+#  - remove the `-o root' part in INSTALLSUID
+#  - set USE_TTY_GROUP=no
+#  - define DESTDIR
+include $(JMK_ROOT)/envir.mak
+
+ifneq ($(wildcard $(JMK_ROOT)/pkg/include/libc_config.make),)
+include $(JMK_ROOT)/pkg/include/libc_config.make
+endif
+
+OPT=	-O2 -fomit-frame-pointer
+WARNFLAGS = -Wall -Wmissing-prototypes -Wstrict-prototypes
+
+
+# Select for CPU one of intel, alpha, sparc, arm, m68k, mips
+CPU=$(OPENRG_ARCH)
+
+# define where is locale directrory (default /usr/share/locale)
+LOCALEDIR=/usr/share/locale
+
+# Different optimizations for different cpus.
+# Change the -m486 part if you have a 386.
+    OPT=	-O2 -fomit-frame-pointer
+
+
+JMK_LDFLAGS   = -s
+
+WARNFLAGS = -Wall -Wmissing-prototypes -Wstrict-prototypes
+
+LIB=../lib
+
+ERR_O=$(LIB)/err.o
+
+#JMK_CFLAGS    = $(OPT) -I. -I$(LIB) $(WARNFLAGS) \
+#			-I$(JMK_ROOT)/pkg/include/ \
+#			$(CURSESFLAGS) $(SLANGFLAGS) \
+#			$(EXTRACFLAGS) \
+#			-DSBINDIR=\"$(SBINDIR)\" \
+#			-DUSRSBINDIR=\"$(USRSBINDIR)\" \
+#			-DLOGDIR=\"$(LOGDIR)\" \
+#			-DVARPATH=\"$(VARPATH)\" \
+#			-DLOCALEDIR=\"$(LOCALEDIR)\"
+
+JMK_CFLAGS=-I$(LIB) $(OPT) -I$(JMK_ROOT)/pkg/include
+
+
+# Set HAVE_SLANG to yes if you have slang (and prefer to use that for cfdisk)
+# (If neither HAVE_NCURSES nor HAVE_SLANG is defined, cfdisk is not made.)
+# HAVE_SLANG=yes
+
+# There is a subdirectory /usr/include/slang containing slcurses.h
+# SLANGFLAGS=-I/usr/include/slang
+# No such subdirectory - slcurses.h lives in /usr/include
+#   (no extra definition required).
+LIBSLANG=-lslang
+
+
+DEVDIR=		$(DESTDIR)/dev
+ETCDIR=		$(DESTDIR)/etc
+SBINDIR=	$(DESTDIR)/sbin
+USRSBINDIR=	$(DESTDIR)/usr/sbin
+USRLIBDIR=      $(DESTDIR)/usr/lib
+USRBINDIR=      $(DESTDIR)/usr/bin
+USRGAMESDIR=    $(DESTDIR)/usr/games
+BINDIR=         $(DESTDIR)/bin
+VARPATH=	$(DESTDIR)/var
+LOGDIR=		$(DESTDIR)/var/log
+MANDIR=		$(DESTDIR)/usr/man
+MAN1DIR=	$(MANDIR)/man1
+MAN3DIR=	$(MANDIR)/man3
+MAN5DIR=	$(MANDIR)/man5
+MAN6DIR=	$(MANDIR)/man6
+MAN8DIR=	$(MANDIR)/man8
+INFODIR=	$(DESTDIR)/usr/info
+
+# Directory for shutdown, halt, reboot, etc.
+SHUTDOWNDIR=	$(SBINDIR)
+
+# Directory for fsck
+FSCKDIR=	$(SBINDIR)
+
+# Directory for passwd
+PASSWDDIR=	$(USRBINDIR)
+
+# Directory for help file for more.  Some may want /usr/share/misc .
+MOREHELPDIR=	$(USRLIBDIR)
+
+# Modes
+DIRMODE=	755
+BINMODE=	755
+MANMODE=	644
+DATMODE=	644
+INFOMODE=	644
+SUIDMODE=      4755
+
+CHMOD=		chmod
+INSTALL=	install
+INSTALLDIR=	$(INSTALL) -d -m $(DIRMODE)
+INSTALLBIN=	$(INSTALL) -m $(BINMODE)
+INSTALLMAN=	$(INSTALL) -m $(MANMODE)
+INSTALLDAT=	$(INSTALL) -m $(DATMODE)
+INSTALLSUID=    $(INSTALL) -m $(SUIDMODE) -o root
+
+%.o: %.c
+	$(CC) -c $(JMK_CFLAGS) $< -o $@
+
+%: %.cc
+	$(CXX) $(JMK_CFLAGS) $< -o $@
+

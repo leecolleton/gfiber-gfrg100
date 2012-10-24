@@ -1,0 +1,65 @@
+# This Makefile is used to create create_config from rg/archconfig.mak during 
+# archconfig stage.
+# In order to keep this code as direct as possible, don't use any of OpenRG
+# variables (like SRC, ...).
+
+JUTIL_SRC=rg_error.c rg_print.c alloc.c str.c rg_version.c
+CREATE_CONF_SRC=create_config.c \
+  dist_config.c feature_config.c hw_config.c config_opt.c major_features.c \
+  config_host.c config_target_os.c config_opt.h
+
+ifndef CONFIG_RG_GPL
+  JUTIL_SRC+=conv.c lines.c
+  CREATE_CONF_SRC+=device_config.c
+  CONFIG_RG_DO_DEVICES=y
+endif
+CREATE_CONF_SRCS=$(addprefix $(JMK_ROOT)/pkg/util/, $(JUTIL_SRC)) \
+  $(addprefix $(JMK_ROOT)/pkg/build/,$(CREATE_CONF_SRC))
+
+CREATE_CONF_CFLAGS:=-DUSE_BASIC_HOST_CONFIG=1 -I$(JMKE_BUILDDIR) \
+  -I$(JMK_ROOT)/pkg/ -I$(JMK_ROOT)/pkg/include -I$(JMK_ROOT)/pkg/util \
+  -Wall -Werror -g -Wstrict-prototypes --static -DENTITY_ID=LOG_ENTITY_OTHER
+
+CREATE_CONF_CFLAGS+=-DLIC_RG_APP=\"$(LIC_RG_APP)\"
+CREATE_CONF_CFLAGS+=$(if $(JMKE_IS_DISTRIBUTION),-DIS_DISTRIBUTION)
+CREATE_CONF_CFLAGS+=$(if $(CONFIG_RG_GPL),-DCONFIG_RG_GPL)
+CREATE_CONF_CFLAGS+=$(if $(CONFIG_RG_DO_DEVICES),-DCONFIG_RG_DO_DEVICES)
+
+# The _EXEC_AS_ROOT variables are for local use only and were defined to
+# support compilation under Cygwin.
+# Cannot use the name EXEC_AS_ROOT because it is already used in envir.mak
+export _EXEC_AS_ROOT=$(JMKE_BUILDDIR)/pkg/build/exec_as_root
+export _EXEC_AS_ROOT_COMMAND=$(_EXEC_AS_ROOT)
+
+EXPORT_SRC=
+ifneq "$(wildcard $(JMK_ROOT)/pkg/build/export_src.c)" ""
+EXPORT_SRC=$(JMKE_BUILDDIR)/pkg/build/export_src
+$(EXPORT_SRC): $(JMK_ROOT)/pkg/build/export_src.c
+	. $(JMKE_BUILDDIR)/host_config.sh ; \
+	$$CC $< \
+	-o $@ -DJMKE_BUILDDIR=\"$(JMKE_BUILDDIR)\" \
+	-DJMK_ROOT=\"$(JMK_ROOT)\" 
+endif
+
+$(EXPORT_SRC) $(_EXEC_AS_ROOT): create_cfg_prereqs
+
+$(CREATE_CONFIG): $(CREATE_CONF_SRCS) $(_EXEC_AS_ROOT) $(EXPORT_SRC)
+	$(JMKE_MKDIR) $(JMKE_BUILDDIR)/pkg/build
+	. $(JMKE_BUILDDIR)/host_config.sh ; \
+	  $$CC \
+	  $(CREATE_CONF_CFLAGS) -o $@ $(call FILTER_SRC,$^) \
+	  $(CREATE_CONF_LDFLAGS)
+
+$(JMKE_BUILDDIR)/pkg/build/exec_as_root: \
+  $(JMK_ROOT)/pkg/build/exec_as_root.c
+	if ! chown root.root $@ > /dev/null 2>&1; then \
+	    . $(JMKE_BUILDDIR)/host_config.sh ; \
+	    $$CC -o $@ $< ; \
+	    if which rt > /dev/null ; then \
+	      rt chown root.root $@ ; \
+	      rt chmod 4755 $@ ; \
+	    else \
+	      echo "please enter root's password (needed by exec_as_root):" ; \
+	      su -c "chown root.root $@ && chmod 4755 $@" ; \
+	    fi ; \
+	fi

@@ -1,0 +1,54 @@
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+  .text : {
+    _stext = .;
+    _text = .;
+    _start = .;
+    *(.start)
+    *(.text)
+    *(.text.*)
+    *(.fixup)
+    *(.gnu.warning)
+    *(.rodata)
+    *(.rodata.*)
+    *(.glue_7)
+    *(.glue_7t)
+    _compressed_kernel_start = .;
+    *(.compressed_kernel)
+    _compressed_kernel_end = .;
+    . = ALIGN(4);
+  }
+
+  _etext = .;
+
+  _got_start = .;
+  .got			: { *(.got) }
+  _got_end = .;
+  .got.plt		: { *(.got.plt) }
+  .data			: { *(.data) *(.data.*) }
+  _edata = .;
+
+  _rofs_start = .;
+  .rofs : { *(.rofs) }
+  _rofs_end = .;
+  . = ALIGN(4);
+
+  _bss_start = .;
+  .bss			: { *(.bss) *(.bss.*) }
+  _bss_end = .;
+  _end = .;
+
+  .stack (NOLOAD)	: { *(.stack) }
+  malloc_start = .;
+
+  .stab 0		: { *(.stab) }
+  .stabstr 0		: { *(.stabstr) }
+  .stab.excl 0		: { *(.stab.excl) }
+  .stab.exclstr 0	: { *(.stab.exclstr) }
+  .stab.index 0		: { *(.stab.index) }
+  .stab.indexstr 0	: { *(.stab.indexstr) }
+  .comment 0		: { *(.comment) }
+
+}
