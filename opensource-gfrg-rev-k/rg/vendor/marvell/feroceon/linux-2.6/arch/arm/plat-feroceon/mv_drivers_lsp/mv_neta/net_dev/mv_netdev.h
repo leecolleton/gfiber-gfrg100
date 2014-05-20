@@ -316,6 +316,7 @@ struct eth_dev_priv {
 	struct eth_netdev   *netdev_p;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
     struct net_device_stats	netdev_stats;
+    struct net_device_stats	hw_stats;
 #endif
 };
 
@@ -323,6 +324,7 @@ struct eth_dev_priv {
 #define MV_DEV_PRIV(dev)        (((struct eth_dev_priv *)(netdev_priv(dev)))->netdev_p)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)
  #define MV_DEV_STAT(dev)       (((struct eth_dev_priv *)(netdev_priv(dev)))->netdev_stats)
+ #define MV_HW_STAT(dev)       (((struct eth_dev_priv *)(netdev_priv(dev)))->hw_stats)
 #else
  #define MV_DEV_STAT(dev)        ((dev)->stats)
 #endif

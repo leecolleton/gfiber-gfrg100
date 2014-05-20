@@ -551,7 +551,7 @@ void tpm_init_eth_cmplx_setup_error_print(uint32_t hwEthCmplx, bool sysfs_call)
 {
 	uint32_t i,j, off = 0;
 	char buff[1024];
-	uint32_t profile[7]= {0};
+	uint32_t profile[8]= {0};
 
 	off += sprintf(buff+off, "\nSelected Eth Complex Profile: %s", prof_str_tlb[tpm_init.eth_cmplx_profile]);
 	off += sprintf(buff+off, "\nHW enabled options:\n\t");
@@ -592,11 +592,12 @@ void tpm_init_eth_cmplx_setup_error_print(uint32_t hwEthCmplx, bool sysfs_call)
 
 	case TPM_G1_WAN_G0_INT_SWITCH:
 		profile[0] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_RGMIIA_MAC1 | ESC_OPT_GEPHY_SW_P0 | ESC_OPT_FE3PHY;
-		profile[1] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_RGMIIA_MAC1 | ESC_OPT_QSGMII;
-		profile[2] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_FE3PHY;
-		profile[3] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_RGMIIA_SW_P6 | ESC_OPT_FE3PHY;
-		profile[4] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_QSGMII;
-		profile[5] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_QSGMII | ESC_OPT_RGMIIA_SW_P6;
+           profile[1] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_RGMIIA_MAC1 | ESC_OPT_FE3PHY;
+		profile[2] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_RGMIIA_MAC1 | ESC_OPT_QSGMII;
+		profile[3] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_FE3PHY;
+		profile[4] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_RGMIIA_SW_P6 | ESC_OPT_FE3PHY;
+		profile[5] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_QSGMII;
+		profile[6] = ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_MAC1 | ESC_OPT_QSGMII | ESC_OPT_RGMIIA_SW_P6;
 		break;
 
 	case TPM_PON_G1_WAN_G0_INT_SWITCH:
@@ -699,8 +700,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 			if (TPM_TRUE == tpm_init.eth_port_conf[i].valid){
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
@@ -709,8 +710,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 				else if (HW_OPT_ON(ESC_OPT_RGMIIA_SW_P6, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 6))
 				 	tpm_init.eth_port_conf[i].chip_connect =TPM_CONN_RGMII1;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -752,8 +753,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 			if (TPM_TRUE == tpm_init.eth_port_conf[i].valid){
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
@@ -762,8 +763,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 				else if (HW_OPT_ON(ESC_OPT_RGMIIA_SW_P6, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 6))
 					tpm_init.eth_port_conf[i].chip_connect =TPM_CONN_RGMII1;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -795,8 +796,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
        		if (TPM_TRUE == tpm_init.eth_port_conf[i].valid){
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
        				tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
@@ -805,8 +806,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 				else if (HW_OPT_ON(ESC_OPT_RGMIIA_SW_P6, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 6))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_RGMII1;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -873,8 +874,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
        		if (TPM_TRUE == tpm_init.eth_port_conf[i].valid){
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
        				tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
@@ -883,8 +884,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 				else if (HW_OPT_ON(ESC_OPT_RGMIIB_MAC0, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 5))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_RGMII2;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -927,8 +928,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
        		if (TPM_TRUE == tpm_init.eth_port_conf[i].valid){
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
@@ -937,8 +938,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 				else if (HW_OPT_ON(ESC_OPT_RGMIIA_SW_P6, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 6))
        				tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_RGMII1;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -950,6 +951,7 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 			}
 
 		if (VALID_ONLY((ESC_OPT_RGMIIA_MAC1 | ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_GEPHY_SW_P0 | ESC_OPT_FE3PHY), hwEthCmplx) ||
+               VALID_ONLY((ESC_OPT_RGMIIA_MAC1 | ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_FE3PHY), hwEthCmplx) ||
 		    VALID_ONLY((ESC_OPT_RGMIIA_MAC1 | ESC_OPT_MAC0_2_SW_P4 | ESC_OPT_QSGMII), hwEthCmplx)){
 			for (i = 0; i < TPM_MAX_NUM_ETH_PORTS; i++){
 				if (TPM_FALSE == tpm_init.eth_port_conf[i].valid){
@@ -1002,8 +1004,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
        		if (TPM_TRUE == tpm_init.eth_port_conf[i].valid) {
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
@@ -1012,8 +1014,8 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 				else if (HW_OPT_ON(ESC_OPT_RGMIIA_SW_P6, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 6))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_RGMII1;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -1079,15 +1081,15 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
        		if (TPM_TRUE == tpm_init.eth_port_conf[i].valid){
 				tpm_init.eth_port_conf[i].int_connect = TPM_INTCON_SWITCH;
 
-				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) && 
-				    (tpm_init.eth_port_conf[i].switch_port >= 0) && 
+				if (HW_OPT_ON(ESC_OPT_QSGMII, hwEthCmplx) &&
+				    (tpm_init.eth_port_conf[i].switch_port >= 0) &&
 				    (tpm_init.eth_port_conf[i].switch_port <= 3))
        				tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_QSGMII;
 				else if (HW_OPT_ON(ESC_OPT_GEPHY_SW_P0, hwEthCmplx) &&
 					 (tpm_init.eth_port_conf[i].switch_port == 0))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_GE_PHY;
-				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) && 
-				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) && 
+				else if (HW_OPT_ON(ESC_OPT_FE3PHY, hwEthCmplx) &&
+				    	 (tpm_init.eth_port_conf[i].switch_port >= 1) &&
 				    	 (tpm_init.eth_port_conf[i].switch_port <= 3))
 					tpm_init.eth_port_conf[i].chip_connect = TPM_CONN_FE_PHY;
 				else
@@ -1245,12 +1247,12 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 
 		tpm_init.gmac_port_conf[0].valid = TPM_TRUE;
 		tpm_init.gmac_port_conf[0].port_src = TPM_SRC_PORT_UNI_0;
-		
+
 		if (HW_OPT_ON(ESC_OPT_RGMIIB_MAC0, hwEthCmplx))
 			tpm_init.gmac_port_conf[0].conn = TPM_GMAC_CON_RGMII2;
 		else if (HW_OPT_ON(ESC_OPT_RGMIIA_MAC0, hwEthCmplx))
 			tpm_init.gmac_port_conf[0].conn = TPM_GMAC_CON_RGMII1;
-			
+
 		tpm_init.gmac_port_conf[1].valid = TPM_TRUE;
 		tpm_init.gmac_port_conf[1].port_src = TPM_SRC_PORT_WAN;
 
@@ -1309,7 +1311,7 @@ static uint32_t tpm_init_eth_cmplx_update_conf(void)
 			tpm_init.gmac_port_conf[1].conn = TPM_GMAC_CON_RGMII1;
 		else if (HW_OPT_ON(ESC_OPT_GEPHY_MAC1, hwEthCmplx))
 			tpm_init.gmac_port_conf[1].conn = TPM_GMAC_CON_GE_PHY;
-			
+
 		tpm_init.gmac_port_conf[2].valid = TPM_TRUE;
 		tpm_init.gmac_port_conf[2].port_src = TPM_SRC_PORT_WAN;
 

@@ -196,6 +196,38 @@ static inline MV_U32 tpm_tcam_get_aging_cntr(int32_t tid)
 }
 
 /*******************************************************************************
+* tpm_tcam_clear_aging_cntr()
+*
+* DESCRIPTION: The API clear hit counter of specific TCAM entry
+*
+* INPUTS:   tid   - - TCAM entry number
+*
+* OUTPUTS:
+*           None
+* RETURNS:
+*           Hit counter
+*
+* COMMENTS:
+*           None
+*
+*******************************************************************************/
+static inline void tpm_tcam_clear_aging_cntr(int32_t tid)
+{
+	unsigned long flags;
+
+	/* Lock the TCAM hit counter */
+	spin_lock_irqsave(&tpmTcamAgingLock, flags);
+
+	/* clear aging hit counter by TID */
+	mvPncAgingCntrClear(tid);
+
+	/* Unlock TCAM hit counter */
+	spin_unlock_irqrestore(&tpmTcamAgingLock, flags);
+
+	return;
+}
+
+/*******************************************************************************
 * tpm_tcam_clear_lu_read_flag()
 *
 * DESCRIPTION: The API clear the LU read flag to let the TCAM entries to be
@@ -793,6 +825,7 @@ tpm_error_code_t tpm_count_set_pnc_counter_mask(uint32_t owner_id,
 * INPUTS:   owner_id     - APP owner id  should be used for all API calls
 *           api_type    - TPM API group type
 *           rule_idx     - The PnC rule index returned when created PnC rules
+*           hit_reset    - Should the API reset the hit counters after after reading
 *
 * OUTPUTS:
 *           rule_idx     - The hitted times of specific PnC rule
@@ -807,6 +840,7 @@ tpm_error_code_t tpm_count_set_pnc_counter_mask(uint32_t owner_id,
 tpm_error_code_t tpm_count_get_pnc_hit_count(uint32_t owner_id,
 					     tpm_api_type_t api_type,
 					     uint32_t rule_idx,
+					     uint8_t  hit_reset,
 					     uint32_t *hit_count)
 {
 	tpm_api_sections_t api_section;
@@ -829,6 +863,9 @@ tpm_error_code_t tpm_count_get_pnc_hit_count(uint32_t owner_id,
 	*hit_count = tpm_tcam_get_aging_cntr((int32_t) tcam_num);
 
 	*hit_count &= TPM_PNC_AGING_CNTR_MASK;
+
+	if (hit_reset)
+		tpm_tcam_clear_aging_cntr((int32_t) tcam_num);
 
 	TPM_OS_DEBUG(TPM_PNCL_MOD, "%s out, tcam_num[%d], hit_count[%d\n", __func__, tcam_num, *hit_count);
 

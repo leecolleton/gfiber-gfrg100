@@ -223,7 +223,9 @@ JMK_LINK_DIRS+=$(if $(CONFIG_RG_WIRELESS_TOOLS),wireless_tools)
 JMK_SUBDIRS+=$(if $(CONFIG_RG_ANTIVIRUS),antivirus)
 JMK_SUBDIRS+=$(if $(CONFIG_RG_WSC),wsc)
 JMK_SUBDIRS+=$(if $(CONFIG_RG_WPS),wps)
+ifndef CONFIG_RG_GPL
 JMK_SUBDIRS+=$(if $(CONFIG_RG_HOSTAPD),hostapd)
+endif
 JMK_SUBDIRS+=$(if $(CONFIG_RG_REDUCE_SUPPORT),reduce_support)
 JMK_SUBDIRS+=$(if $(CONFIG_RG_BITTORRENT),bittorrent)
 JMK_SUBDIRS+=$(if $(CONFIG_RG_DECT),dect)

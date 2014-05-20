@@ -897,7 +897,7 @@ tpm_error_code_t tpm_sw_pm_1_read
 * INPUTS:
 *       owner_id        - APP owner id should be used for all API calls.
 *       src_port        - Source port in UNI port index, UNI0, UNI1...UNI4.
-*       tpm_swport_pm_3 - Holds PM data
+*       tpm_swport_pm_3_all_t - Holds PM data
 *
 * OUTPUTS:
 *       PM data is supplied structure.
@@ -910,7 +910,7 @@ tpm_error_code_t tpm_sw_pm_3_read
 (
     uint32_t            owner_id,
     tpm_src_port_type_t src_port,
-    tpm_swport_pm_3_t  *tpm_swport_pm_3
+    tpm_swport_pm_3_all_t  *tpm_swport_pm_3
 );
 
 /*******************************************************************************

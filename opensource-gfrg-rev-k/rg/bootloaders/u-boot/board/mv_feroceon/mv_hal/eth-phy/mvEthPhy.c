@@ -1877,22 +1877,28 @@ MV_VOID mvEth1540PhyBasicInit(MV_BOOL eeeEnable)
 			mvEth1540A0PhyBasicInit(eeeEnable);
 	}
 
-	/* Configure Quad PHY LEDs (Actiontec specific) */
+	/* Configure Quad PHY LEDs and signal strength (Actiontec specific) */
 	board_id = mvBoardIdGet();
 	if (board_id == MI424WR_I_ID || board_id == MI424WR_J_ID ||
 		board_id == MI424WR_K0_ID || board_id == MI424WR_K2_ID)
 	{
-		for (i = 0; i < 4; i++)
+		/* LEDs */
+		for (i = startAddr; i < startAddr + 4; i++)
 		{
-			mvEthPhyRegWriteExtSmi(startAddr + i, 0x16, 0x0003);
-			mvEthPhyRegWriteExtSmi(startAddr + i, 0x10, 0x1668);
+			mvEthPhyRegWriteExtSmi(i, 0x16, 0x0003);
+			mvEthPhyRegWriteExtSmi(i, 0x10, 0x1668);
 			if (board_id == MI424WR_K2_ID)
 			{
-				mvEthPhyRegReadExtSmi(startAddr + i, 0x11, &reg);
-				mvEthPhyRegWriteExtSmi(startAddr + i, 0x11, reg | 0x40);
+				mvEthPhyRegReadExtSmi(i, 0x11, &reg);
+				mvEthPhyRegWriteExtSmi(i, 0x11, reg | 0x40);
 			}
-			mvEthPhyRegWriteExtSmi(startAddr + i, 0x16, 0x0000);
+			mvEthPhyRegWriteExtSmi(i, 0x16, 0x0000);
 		}
+
+		/* Signal strength level */
+		mvEthPhyRegWrite(0, 0x16, 0x00FD);
+		mvEthPhyRegWrite(0, 0x0B, 0x1c40);
+		mvEthPhyRegWrite(0, 0x16, 0x0000);
 	}
 
 	return;

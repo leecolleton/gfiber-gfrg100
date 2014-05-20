@@ -104,6 +104,47 @@ static struct irq_desc bad_irq_desc = {
 	.lock = SPIN_LOCK_UNLOCKED
 };
 
+int sysrq_show_interrupts(void)
+{
+	int i, cpu;
+	struct irqaction * action;
+	unsigned long flags;
+
+	{
+		char cpuname[12];
+
+		printk("    ");
+		for_each_present_cpu(cpu) {
+			sprintf(cpuname, "CPU%d", cpu);
+			printk(" %10s", cpuname);
+		}
+		printk("\n");
+	}
+
+	for (i = 0; i < NR_IRQS; i++) {
+		spin_lock_irqsave(&irq_desc[i].lock, flags);
+		action = irq_desc[i].action;
+		if (!action)
+			goto unlock;
+
+		printk("%3d: ", i);
+		for_each_present_cpu(cpu)
+			printk("%10u ", kstat_cpu(cpu).irqs[i]);
+		printk(" %10s", irq_desc[i].chip->name ? : "-");
+		printk("  %s", action->name);
+		for (action = action->next; action; action = action->next)
+			printk(", %s", action->name);
+
+		printk("\n");
+unlock:
+		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+	} 
+
+	printk("Err: %10lu\n", irq_err_count);
+
+	return 0;
+}
+
 /*
  * do_IRQ handles all hardware IRQ's.  Decoded IRQs should not
  * come via this function.  Instead, they should provide their

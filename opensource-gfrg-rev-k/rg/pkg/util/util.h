@@ -45,7 +45,11 @@
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(*(x)))
 #endif
 
+#ifdef ACTIONTEC_NEW_GUI_GOOGLE
+#define DEFAULT_PASSWORD "Password"
+#else
 #define DEFAULT_PASSWORD "{[(+-)]}"
+#endif
 
 static inline char *_container_of(char *ptr, size_t offset)
 {

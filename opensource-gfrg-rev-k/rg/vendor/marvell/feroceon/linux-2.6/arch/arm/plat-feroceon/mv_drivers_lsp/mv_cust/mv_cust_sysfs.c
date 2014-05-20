@@ -82,7 +82,7 @@ static ssize_t mv_cust_spec_proc_help(char *buf)
     off += sprintf(buf+off, "echo p udp_dst(dec) txp txq flags hw_cmd  > udp_dst - set udp dest.  port special Tx behavior\n");
 #ifdef CONFIG_MV_CUST_FLOW_MAP_HANDLE
     off += sprintf(buf+off, "echo hex                                  > flow_map_debug  - Set flow mapping debug flag, 1:enable, 0:disable \n");    
-    off += sprintf(buf+off, "echo vid pbits mod_vid mod_pbits trg_port trg_queue gem_port  > flow_map_us_set - set U/S flow mapping rule\n");
+    off += sprintf(buf+off, "echo vid pbits mod_vid mod_pbits trg_port trg_queue trg_hwf_queue gem_port  > flow_map_us_set - set U/S flow mapping rule\n");
     off += sprintf(buf+off, "echo vid pbits mod_vid mod_pbits          > flow_map_ds_set - set D/S flow mapping rule\n");    
     off += sprintf(buf+off, "echo pbits0 pbits1 ... pbits62 pbits63    > dscp_map_set    - set DSCP to P-bits mapping rules\n");    
     off += sprintf(buf+off, "echo vlan pbits dir(0:U/S, 1:D/S)         > flow_map_del    - delete flow mapping rule\n");
@@ -113,7 +113,7 @@ static ssize_t mv_cust_spec_proc_show(struct device *dev,
         mv_cust_eoam_print();
     }
     else if (!strcmp(name, "igmp")) {
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
         mv_cust_igmp_print();
 #else
         printk("mv_cust module was not compiled with IGMP Support\n");
@@ -303,7 +303,7 @@ static ssize_t mv_cust_spec_proc_flow_store(struct device *dev,
                                             const char *buf, size_t len)
 {
     const char*        name = attr->attr.name;
-    unsigned int       v1=0, v2=0, v3=0, v4=0, v5=0, v6=0, v7=0;
+    unsigned int       v1=0, v2=0, v3=0, v4=0, v5=0, v6=0, v7=0, v8=0;
     unsigned long      flags;
     mv_cust_ioctl_flow_map_t cust_flow;
 
@@ -311,7 +311,7 @@ static ssize_t mv_cust_spec_proc_flow_store(struct device *dev,
         return -EPERM;
 
     /* Read input */
-    sscanf(buf, "%d %d %d %d %d %d %d", &v1, &v2, &v3, &v4, &v5, &v6, &v7);
+    sscanf(buf, "%d %d %d %d %d %d %d %d", &v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8);
 
     raw_local_irq_save(flags);
 
@@ -328,10 +328,11 @@ static ssize_t mv_cust_spec_proc_flow_store(struct device *dev,
         cust_flow.mod_vid   = v3;
         cust_flow.mod_pbits = v4;
         
-        cust_flow.pkt_frwd.in_use    = 1;
-        cust_flow.pkt_frwd.trg_port  = (mv_cust_trg_port_type_t)v5;
-        cust_flow.pkt_frwd.trg_queue = (uint32_t)v6;
-        cust_flow.pkt_frwd.gem_port  = (mv_cust_gem_port_key_t)v7;
+        cust_flow.pkt_frwd.in_use        = 1;
+        cust_flow.pkt_frwd.trg_port      = (mv_cust_trg_port_type_t)v5;
+        cust_flow.pkt_frwd.trg_queue     = (uint32_t)v6;
+        cust_flow.pkt_frwd.trg_hwf_queue = (uint32_t)v7;        
+        cust_flow.pkt_frwd.gem_port      = (mv_cust_gem_port_key_t)v8;
         
         mv_cust_map_rule_set(&cust_flow);
     }

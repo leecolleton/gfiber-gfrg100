@@ -15,7 +15,11 @@ JMK_CFLAGS += -I$(JMKE_BUILDDIR)/pkg/hostapd/hostapd-0.8.x/src/utils/
 ###############################################################################
 # Driver interface for marvell driver
 JMK_CFLAGS += -DMRVL_WSC -DGENERIC_GETIE -DMRVL_WPS2
-JMK_CFLAGS += -I$(JMKE_BUILDDIR)/vendor/marvell/wifi8764/
+ifdef CONFIG_MV_WIFI_8864
+  JMK_CFLAGS += -I$(JMKE_BUILDDIR)/vendor/marvell/wifi8864/
+else
+  JMK_CFLAGS += -I$(JMKE_BUILDDIR)/vendor/marvell/wifi8764/
+endif
 
 # IEEE 802.11F/IAPP
 #CONFIG_IAPP=y

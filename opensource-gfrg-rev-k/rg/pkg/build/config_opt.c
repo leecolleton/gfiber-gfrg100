@@ -84,7 +84,7 @@ option_t openrg_hw_options[] = {
     { "BVW3653", "Hitron BVW3653 Board" },
     { "MVG3420N", "Mototech MVG3420N Docsis3 Board" },
     { "C1KMFCNEVM", "Mindspeed C1000 Multi-Function Reference board" },
-    { "DB88F6560BP", "Actiontec Rev-K Board" },
+    { "DB88F6560BP", "GFRG110" },
     { "MI424WR-FEROCEON", "Actiontec MV88F6xx (Marvell Feroceon) Board" },
     { NULL, NULL },
 };
@@ -286,6 +286,7 @@ option_t openrg_distribution_options[] = {
     { "DB88F6560BP", NULL }, /* Marvell Feroceon KW2 SoC */ 
     { "FIBERTEC_FEROCEON", NULL }, /* Fibertec's Marvell Feroceon KW2 SoC */ 
     { "VERIZON_FEROCEON", NULL }, /* Verizon's Marvell Feroceon KW2 SoC */ 
+    { "NCS_FEROCEON", NULL }, /* NCS Marvell Feroceon KW2 SoC */ 
     { "FIBERTEC_DB88F6560BP", NULL }, /* Fibertec's Marvell ref board */ 
     { NULL, NULL }
 };
@@ -972,6 +973,7 @@ option_t config_options_base[] = {
     { "CONFIG_I2C_ALGOBIT", NULL, OPT_MODULE_EXPAND },
     { "CONFIG_I2C_DS1374", NULL, OPT_MODULE_EXPAND },
     { "CONFIG_I2C_LM81", NULL, OPT_MODULE_EXPAND },
+    { "CONFIG_I2C_MV64XXX", NULL, OPT_MODULE_EXPAND },
     /* Advanced Management (Graphical Map) */
     { "CONFIG_LOG_FILES_MAX_SIZE", NULL, OPT_NUMBER },
     /* Advanced Management (Graphical Map) */
@@ -1931,6 +1933,7 @@ option_t config_options_base[] = {
     { "CONFIG_GUI_TUTORIAL", NULL, OPT_THEME | OPT_HC },
     { "CONFIG_RG_DEF_THEME", NULL, OPT_THEME | OPT_C_STR },
     { "CONFIG_GUI_GOOGLE", NULL, OPT_THEME | OPT_HC},
+    { "ACTIONTEC_NEW_GUI_GOOGLE", NULL, OPT_THEME | OPT_HC},
     { "CONFIG_GUI_VERIZON", NULL, OPT_THEME | OPT_HC},
     { "CONFIG_RG_LIBIMAGE", NULL, OPT_HC },
     { "CONFIG_RG_LIBIMAGE_DIM", NULL, OPT_HC },
@@ -2889,6 +2892,8 @@ option_t config_options_base[] = {
     { "CONFIG_HW_CAMERA_USB_PWC", NULL },
     { "CONFIG_HW_CAMERA_USB_SPCA5XX", NULL },
     { "CONFIG_HW_EEPROM", NULL },
+    { "CONFIG_HW_SENSORS", NULL, OPT_MODULE_EXPAND | OPT_HARDWARE, 
+	"Sensors Support"  },
     { "CONFIG_HW_LEDS", NULL, OPT_MODULE_EXPAND | OPT_HARDWARE, 
 	"LED Support"  },
     { "CONFIG_HW_BLUETOOTH", NULL, OPT_HARDWARE, "Bluetooth" },
@@ -3765,6 +3770,9 @@ option_t config_options_base[] = {
     /* FIBERTEC configurations*/
     { "CONFIG_RG_FIBERTEC", NULL, OPT_HC | OPT_EXPORT},
 
+    /* NCS configurations*/
+    { "CONFIG_RG_NCS", NULL, OPT_HC | OPT_EXPORT},
+
     /* Marvell mv88f6500 feroceon kirkwood2 SoC */ 
     { "CONFIG_L2_CACHE_ENABLE" },
     { "CONFIG_FEROCEON_PROC" },
@@ -4078,12 +4086,27 @@ option_t config_options_base[] = {
 
     /* Support for Marvell Wireless 8764 Chip */
     { "CONFIG_MV_WIFI_8764", NULL, OPT_H|OPT_MK|OPT_MODULE_EXPAND, "Marvell 8764 Wireles driver" },
+    { "CONFIG_MV_WIFI_8864", NULL, OPT_H | OPT_MK | OPT_MODULE_EXPAND, "Marvell 8864 11ac Wireles driver" },
     
     /* Support for Quantenna QHS 71X Chip */
     { "CONFIG_QUANTENNA_QHS_71X", NULL, OPT_H|OPT_MK|OPT_MODULE_EXPAND, "Quantenna QHS 71X Wireles host driver" },
 
-    /* VLAN on WAN interface */
-    { "CONFIG_FIBERTEC_UNTAGGED_WAN", NULL, OPT_H|OPT_MK, "Support for Untagged WAN" },
+    { "CONFIG_FIBERTEC_DOGFOOD", NULL, OPT_H|OPT_MK, "Dogfood build for Fibertec" },
+
+    /* Production Login hook */
+    { "CONFIG_RG_PRODUCTION_LOGIN_HOOK", NULL, OPT_H|OPT_MK, "Temporary login via telnet for production" },
+
+    { "CONFIG_RG_SENSORS", NULL, OPT_MODULE_EXPAND },
+
+    { "CONFIG_FT_ACS_URL", NULL, OPT_C_STR | OPT_HC, "Default Fibertec ACS URL" },
+
+    { "CONFIG_RG_IGD_TITLE", NULL, OPT_C_STR, "IGD Device Title" },
+    { "CONFIG_RG_IGD_MANUFACTURER", NULL, OPT_C_STR, "IGD Device Manufacturer" },
+    { "CONFIG_RG_IGD_MANUFACTURER_URL", NULL, OPT_C_STR, "IGD Device Manufacturer URL" },
+    { "CONFIG_RG_IGD_PREFIX", NULL, OPT_C_STR, "IGD Prefix to be used wherever necessary" },
+
+    /* Selective NAT for Private address space only */
+    { "CONFIG_RFC1918_ONLY_NAT", NULL, OPT_HC },
 
     { NULL, NULL }
 };

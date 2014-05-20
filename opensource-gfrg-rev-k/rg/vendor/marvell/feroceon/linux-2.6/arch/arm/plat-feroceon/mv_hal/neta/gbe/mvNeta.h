@@ -105,6 +105,7 @@ extern "C" {
 	ETH_DEF_RX_UDP_QUEUE_MASK(rxQ) |	\
 	ETH_DEF_RX_BPDU_QUEUE_MASK(rxQ) |	\
 	ETH_TX_NO_SET_ERROR_SUMMARY_MASK |	\
+	ETH_CAPTURE_UDP_FRAMES_ENABLE_MASK |    \
 	ETH_RX_CHECKSUM_WITH_PSEUDO_HDR		\
 	)
 
@@ -603,6 +604,7 @@ void mvNetaPortStatus(int port);
 void mvNetaRxqShow(int port, int rxq, int mode);
 void mvNetaTxqShow(int port, int txp, int txq, int mode);
 
+unsigned long mvEthMibCounterGet(int port, int mib, MV_U32 offset);
 void mvEthTxpWrrRegs(int port, int txp);
 void mvEthRegs(int port);
 void mvEthPortCounters(int port, int mib);

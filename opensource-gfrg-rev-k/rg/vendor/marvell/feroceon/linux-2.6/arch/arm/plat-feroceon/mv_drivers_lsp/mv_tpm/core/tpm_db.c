@@ -501,6 +501,10 @@ int32_t tpm_db_mac_func_set(void)
 	return (TPM_OK);
 }
 
+EXPORT_SYMBOL(tpm_db_backup_wan_set);
+EXPORT_SYMBOL(tpm_db_backup_wan_get);
+EXPORT_SYMBOL(tpm_db_mac_func_set);
+
 /*******************************************************************************
 * tpm_db_eth_max_uni_port_set()
 *
@@ -2886,10 +2890,10 @@ tpm_gmacs_enum_t tpm_db_active_wan_get()
 		return (tpm_db.init_misc.backup_wan == TPM_ENUM_PMAC) ? TPM_ENUM_GMAC_0 : TPM_ENUM_PMAC;
 
 	case TPM_PON_G0_WAN_G1_SINGLE_PORT:
-		return (tpm_db.init_misc.backup_wan == TPM_ENUM_PMAC) ? TPM_ENUM_GMAC_1 : TPM_ENUM_PMAC;
+		return (tpm_db.init_misc.backup_wan == TPM_ENUM_PMAC) ? TPM_ENUM_GMAC_0 : TPM_ENUM_PMAC;
 
 	case TPM_PON_G1_WAN_G0_SINGLE_PORT:
-		return (tpm_db.init_misc.backup_wan == TPM_ENUM_PMAC) ? TPM_ENUM_GMAC_0 : TPM_ENUM_PMAC;
+		return (tpm_db.init_misc.backup_wan == TPM_ENUM_PMAC) ? TPM_ENUM_GMAC_1 : TPM_ENUM_PMAC;
 
 	case TPM_G0_WAN_G1_INT_SWITCH:
 		return TPM_ENUM_GMAC_0;

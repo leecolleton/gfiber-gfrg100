@@ -1549,6 +1549,7 @@ tpm_error_code_t tpm_set_pnc_counter_mask(uint32_t		owner_id,
 * INPUTS:   owner_id     - API owner id  should be used for all API calls
 *           api_type     - TPM API type
 *           rule_idx     - The rule index of the requested entry.
+*           hit_reset    - Should the API reset the hit counters after after reading
 *
 * OUTPUTS:
 *           hit_count    - The number of hits of the rule.
@@ -1563,6 +1564,7 @@ tpm_error_code_t tpm_set_pnc_counter_mask(uint32_t		owner_id,
 tpm_error_code_t tpm_get_pnc_hit_count(uint32_t 	owner_id,
 				       tpm_api_type_t 	api_type,
 				       uint32_t 	rule_idx,
+				       uint8_t		hit_reset,
 				       uint32_t        *hit_count);
 
 /*******************************************************************************
@@ -3526,7 +3528,7 @@ tpm_error_code_t tpm_sw_pm_1_read(uint32_t owner_id,
 * INPUTS:
 *      owner_id          - APP owner id  should be used for all API calls.
 *       port              - The logical port number
-*      tpm_swport_pm_3   - Holds PM data
+*      tpm_swport_pm_3_all_t   - Holds PM data
 *
 * OUTPUTS:
 * PM data is supplied structure.
@@ -3538,7 +3540,7 @@ tpm_error_code_t tpm_sw_pm_1_read(uint32_t owner_id,
 *******************************************************************************/
 tpm_error_code_t tpm_sw_pm_3_read(uint32_t owner_id,
 				  tpm_src_port_type_t port,
-				  tpm_swport_pm_3_t *tpm_swport_pm_3);
+				  tpm_swport_pm_3_all_t *tpm_swport_pm_3);
 
 /*******************************************************************************
 * tpm_sw_clear_port_counter

@@ -2899,6 +2899,7 @@ void sfs_tpm_cfg_set_count_mask (const char *buf, size_t len)
 tpm_error_code_t tpm_get_pnc_hit_count_bounce(uint32_t             owner_id,
                                               tpm_api_type_t       api_type,
                                               uint32_t             rule_idx,
+                                              uint8_t              hit_reset,
                                               uint32_t            *hit_count)
 {
     tpm_ioctl_age_count_t *tpm_ioctl_age_count = &tpm_sfs_2_ioctl_command.tpm_cmd_data.tpm_ioctl_age_count;
@@ -2908,6 +2909,7 @@ tpm_error_code_t tpm_get_pnc_hit_count_bounce(uint32_t             owner_id,
     tpm_ioctl_age_count->owner_id       = owner_id;
     tpm_ioctl_age_count->api_type       = api_type;
     tpm_ioctl_age_count->rule_idx       = rule_idx;
+    tpm_ioctl_age_count->hit_reset      = hit_reset;
 
     up(&tpm_sfs_2_ioctl_sem);
 
@@ -2933,7 +2935,7 @@ void sfs_tpm_cfg_get_hit_count (const char *buf, size_t len)
 {
     typedef enum
     {
-        age_owner_id=0, age_api_group, age_rule_idx, age_max
+        age_owner_id=0, age_api_group, age_rule_idx, age_hit_reset, age_max
     } age_parm_indx_t;
     uint32_t            owner_id;
     uint32_t            api_group;
@@ -2941,6 +2943,7 @@ void sfs_tpm_cfg_get_hit_count (const char *buf, size_t len)
     int                 parsed_args_num;
     int                 param_num;
     uint32_t            hit_count = 0;
+    uint32_t            hit_reset;
     tpm_error_code_t    ret_code;
 
     param_num = count_parameters(buf);
@@ -2951,12 +2954,11 @@ void sfs_tpm_cfg_get_hit_count (const char *buf, size_t len)
     else
     {
         /* Get parameters */
-        parsed_args_num = sscanf(buf, "%d %d %d", &owner_id, &api_group, &rule_idx);
+        parsed_args_num = sscanf(buf, "%d %d %d %d", &owner_id, &api_group, &rule_idx, &hit_reset);
         /*
         printk(KERN_INFO "len=%d, parsed_args_num[%d], ownerid[%d], range_id[%d], rule_idx[%d]\n",
                len, parsed_args_num, owner_id, range_id, rule_idx);
         */
-
         if (parsed_args_num != param_num)
         {
             printk(KERN_INFO "Parse failure - %d/%d parameters were parsed\n", parsed_args_num, param_num);
@@ -2966,6 +2968,7 @@ void sfs_tpm_cfg_get_hit_count (const char *buf, size_t len)
             if ((ret_code = _tpm_get_pnc_hit_count(owner_id,
                                                    api_group,
                                                    rule_idx,
+                                                   (uint8_t)hit_reset,
                                                    &hit_count)) == TPM_RC_OK)
                 PR_HIT_COUNT(hit_count)
             else

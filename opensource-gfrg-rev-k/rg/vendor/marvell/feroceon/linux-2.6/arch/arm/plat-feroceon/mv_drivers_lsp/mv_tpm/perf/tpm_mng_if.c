@@ -2855,6 +2855,7 @@ int mv_tpm_cdev_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
                   rcode = tpm_get_pnc_hit_count (tpm_ioctl_age_count->owner_id,
                                                  tpm_ioctl_age_count->api_type,
                                                  tpm_ioctl_age_count->rule_idx,
+                                                 tpm_ioctl_age_count->hit_reset,
                                                  &(tpm_ioctl_age_count->hit_count));
 
                   if (rcode != TPM_RC_OK)

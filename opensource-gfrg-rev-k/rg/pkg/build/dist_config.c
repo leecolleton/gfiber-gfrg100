@@ -649,6 +649,7 @@ static void set_jpkg_dist_configs(char *jpkg_dist)
 	jpkg_dist_add("DB88F6560BP");
 	jpkg_dist_add("FIBERTEC_FEROCEON");
 	jpkg_dist_add("VERIZON_FEROCEON");
+	jpkg_dist_add("NCS_FEROCEON");
 	jpkg_dist_add("FIBERTEC_DB88F6560BP");
     }
     if (is_src || !strcmp(jpkg_dist, "JPKG_LOCAL_I386"))
@@ -4379,7 +4380,7 @@ void distribution_features()
 	token_set("CONFIG_RG_JPKG_DIST", "JPKG_ARMV5L_FEROCEON");
     }
     else if (IS_DIST("VERIZON_FEROCEON") || IS_DIST("FIBERTEC_FEROCEON") ||
-	IS_DIST("FIBERTEC_DB88F6560BP"))
+	IS_DIST("NCS_FEROCEON") || IS_DIST("FIBERTEC_DB88F6560BP"))
     {
 	/* Marvell SoC */
 	os = "LINUX_26";
@@ -4389,6 +4390,11 @@ void distribution_features()
 	    hw = "MI424WR-FEROCEON";
             token_set_y("CONFIG_RG_VERIZON");
 	    token_set_y("CONFIG_RG_ATHEROS_FUSION");
+	}
+	else if (IS_DIST("NCS_FEROCEON"))
+	{
+	    hw = "MI424WR-FEROCEON";
+            token_set_y("CONFIG_RG_NCS");
 	}
 	else
 	{
@@ -4413,13 +4419,16 @@ void distribution_features()
 	enable_module("MODULE_RG_DSLHOME");
 	enable_module("MODULE_RG_QOS");
 
+	/* Default radio is Marvell 8764 3x3 802.11n */
+	if (!token_get("CONFIG_QUANTENNA_QHS_71X") &&
+	    !token_get("CONFIG_MV_WIFI_8864") &&
+	    !token_get("CONFIG_RG_ATHEROS_FUSION"))
+	{
+	    token_set_m("CONFIG_MV_WIFI_8764");
+	}
+
 	if (token_get("CONFIG_RG_ATHEROS_FUSION"))
 	    enable_module("CONFIG_RG_ATHEROS_HW_AR5416");
-	else if (!token_get("CONFIG_QUANTENNA_QHS_71X"))
-	    token_set_m("CONFIG_MV_WIFI_8764");
-
-	if (token_get("CONFIG_MV_WIFI_8764"))
-	    token_set_y("CONFIG_RG_WIRELESS_TOOLS");
 
 	enable_module("MODULE_RG_WLAN_AND_ADVANCED_WLAN");
 	if (token_get("CONFIG_RG_VOIP_MEDIA5"))
@@ -4461,6 +4470,9 @@ void distribution_features()
 
 	token_set("CONFIG_RG_JPKG_DIST", "JPKG_ARMV5L_FEROCEON");
 
+	/* WAN swap must be present to configure TPM/Fastpath */
+	token_set_y("CONFIG_RG_WAN_SWAP");
+
         if (token_get("CONFIG_RG_FIBERTEC"))
 	{
 	    token_set_y("CONFIG_GUI_GOOGLE");
@@ -4469,7 +4481,6 @@ void distribution_features()
             enable_module("CONFIG_HW_ENCRYPTION");
 	    token_set_y("CONFIG_FT_PUBLICWIFI");
 	    token_set_y("CONFIG_HW_PON_WAN");
-	    token_set_y("CONFIG_RG_WAN_SWAP");
 	    token_set("CONFIG_RG_INSTALLATION_WIZARD", "n");
 	    token_set("CONFIG_RG_WBM_CONN_TROUBLESHOOT", "n");
 
@@ -4477,6 +4488,23 @@ void distribution_features()
 	    token_set("RMT_UPG_SITE", "update.googlefiber.com");
 	    token_set("RG_PROD_STR", "GFRG");
 	    token_set("DEVICE_MANUFACTURER_STR", "Actiontec");
+
+	    if (token_get("CONFIG_FIBERTEC_DOGFOOD"))
+	    {
+		token_set("CONFIG_FT_ACS_URL", "https://acs.canary.gfsvc.com/cwmp");
+	    }
+	    else
+	    {
+		token_set("CONFIG_FT_ACS_URL", "https://acs.prod.gfsvc.com/default/cwmp");
+		token_set_y("CONFIG_RG_PRODUCTION_LOGIN_HOOK");
+	    }
+
+	    token_set("CONFIG_RG_IGD_TITLE", "Google Fiber Network Box");
+	    token_set("CONFIG_RG_IGD_MANUFACTURER", "Google Fiber");
+	    token_set("CONFIG_RG_IGD_MANUFACTURER_URL", "http://www.google.com/fiber");
+	    token_set("CONFIG_RG_IGD_PREFIX", "GFiber");
+
+	    token_set_y("CONFIG_RG_KNET_MIB2_IF_COUNTERS");
 	}
         else if (token_get("CONFIG_RG_VERIZON"))
 	{
@@ -4488,10 +4516,30 @@ void distribution_features()
 	    token_set("CONFIG_RG_HELP_URL", "http://www.actiontec.com/mi424wr/help.html");
 	    token_set("RMT_UPG_SITE", "update.actiontec.com");
 	    token_set("DEVICE_MANUFACTURER_STR", "Actiontec");
+
+	    token_set("CONFIG_RG_IGD_TITLE", "Verizon FiOS Router");
+	    token_set("CONFIG_RG_IGD_MANUFACTURER", "Verizon");
+	    token_set("CONFIG_RG_IGD_MANUFACTURER_URL", "http://www.verizon.com");
+	    token_set("CONFIG_RG_IGD_PREFIX", "VerizonFiOS");
+	}
+	else if (token_get("CONFIG_RG_NCS"))
+	{
+	    token_set_y("CONFIG_RG_VAP_SECURED");
+	    token_set("CONFIG_RG_INSTALLATION_WIZARD", "n");
+
+	    token_set("CONFIG_RG_HELP_URL", "http://www.actiontec.com/mi424wr/help.html");
+	    token_set("RMT_UPG_SITE", "update.actiontec.com");
+	    token_set("DEVICE_MANUFACTURER_STR", "Actiontec");
+
+	    token_set("CONFIG_RG_IGD_TITLE", "Actiontec Router");
+	    token_set("CONFIG_RG_IGD_MANUFACTURER", "Actiontec");
+	    token_set("CONFIG_RG_IGD_MANUFACTURER_URL", "http://www.actiontec.com");
+	    token_set("CONFIG_RG_IGD_PREFIX", "Actiontec");
 	}
 
 	token_set_m("CONFIG_HW_BUTTONS");
         token_set_y("CONFIG_HW_LEDS");
+        token_set_y("CONFIG_HW_SENSORS");
     }
     else
 	conf_err("invalid DIST=%s\n", dist);

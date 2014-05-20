@@ -66,6 +66,13 @@ disclaimer.
 
 #include "cpu/mvCpuCntrs.h"
 
+#ifndef CONFIG_RG_GPL
+#ifdef CONFIG_RG_KNET_MIB2_IF_COUNTERS
+#include <kos/knet.h>
+#include <kos/knet_if_ext.h>
+#endif
+#endif
+
 #ifdef CONFIG_MV_ETH_PNC_PARSER
 unsigned int config_pnc_parser = 1;
 #else
@@ -1726,6 +1733,13 @@ static inline int mv_eth_refill(struct eth_port *pp, int rxq,
 	return 0;
 }
 
+int mv_eth_port(struct net_device *dev)
+{
+	struct eth_port *pp = MV_ETH_PRIV(dev);
+	return pp->port;
+}
+EXPORT_SYMBOL(mv_eth_port);
+
 static int mv_eth_tx(struct sk_buff *skb, struct net_device *dev)
 {
 	struct eth_port *pp = MV_ETH_PRIV(dev);
@@ -3369,7 +3383,85 @@ static void mv_eth_tx_timeout(struct net_device *dev)
  ***********************************************************/
 static struct net_device_stats* mv_eth_get_stats( struct net_device *dev )
 {
-    return &(MV_DEV_STAT(dev));
+    unsigned long rx_bytes, tx_bytes, rx_multicast;
+    struct eth_port *pp = MV_ETH_PRIV(dev);
+    struct net_device_stats *stats = &(MV_HW_STAT(dev));
+
+    stats->rx_packets += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_GOOD_FRAMES_RECEIVED);
+    stats->tx_packets += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_GOOD_FRAMES_SENT);
+    rx_bytes = 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_GOOD_OCTETS_RECEIVED_LOW);
+    stats->rx_bytes += rx_bytes;
+    tx_bytes = 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_GOOD_OCTETS_SENT_LOW);
+    stats->tx_bytes += tx_bytes;
+    stats->rx_errors += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_BAD_FRAMES_RECEIVED);
+    stats->tx_errors += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_INTERNAL_MAC_TRANSMIT_ERR) +
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_EXCESSIVE_COLLISION) +
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_COLLISION) +
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_LATE_COLLISION);
+    stats->rx_dropped += 
+	MV_REG_READ(ETH_RX_DISCARD_PKTS_CNTR_REG(pp->port));
+    rx_multicast = 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_MULTICAST_FRAMES_RECEIVED);
+    stats->multicast += rx_multicast;
+    stats->collisions += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_COLLISION);
+
+    /* detailed rx_errors: */
+    stats->rx_length_errors += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_UNDERSIZE_RECEIVED) +
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_OVERSIZE_RECEIVED);
+    stats->rx_over_errors += 
+	MV_REG_READ(ETH_RX_OVERRUN_PKTS_CNTR_REG(pp->port));
+    stats->rx_crc_errors +=
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_BAD_CRC_EVENT);
+    stats->rx_frame_errors += 0;
+    stats->rx_fifo_errors += 0;
+    stats->rx_missed_errors += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_MAC_RECEIVE_ERROR);
+
+    /* detailed tx_errors */
+    stats->tx_aborted_errors += 
+	mvEthMibCounterGet(pp->port, 0, ETH_MIB_INTERNAL_MAC_TRANSMIT_ERR);
+    stats->tx_carrier_errors += 0;
+    stats->tx_fifo_errors += 0;
+    stats->tx_heartbeat_errors += 0;
+    stats->tx_window_errors += 0;
+
+    /* for cslip etc */
+    stats->rx_compressed += 0;
+    stats->tx_compressed += 0;
+
+    stats->tx_dropped += MV_DEV_STAT(dev).tx_dropped;
+    MV_DEV_STAT(dev).tx_dropped = 0;
+
+#ifndef CONFIG_RG_GPL
+#ifdef CONFIG_RG_KNET_MIB2_IF_COUNTERS
+    {
+	knet_if_ext_t *devx = knet_if_ext_get(dev);
+
+	if (devx)
+	{
+	    devx->counters.rx_bytes += rx_bytes;
+	    devx->counters.tx_bytes += tx_bytes;
+	    devx->counters.rx_bcasts += 
+		mvEthMibCounterGet(pp->port, 0, ETH_MIB_BROADCAST_FRAMES_RECEIVED);
+	    devx->counters.tx_bcasts +=
+		mvEthMibCounterGet(pp->port, 0, ETH_MIB_BROADCAST_FRAMES_SENT);
+	    devx->counters.rx_mcasts += rx_multicast;
+	    devx->counters.tx_mcasts +=
+		mvEthMibCounterGet(pp->port, 0, ETH_MIB_MULTICAST_FRAMES_SENT);
+	}
+    }
+#endif
+#endif
+
+    return &(MV_HW_STAT(dev));
 }
 #endif
 

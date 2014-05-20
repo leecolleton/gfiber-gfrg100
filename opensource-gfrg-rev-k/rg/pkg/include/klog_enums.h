@@ -49,4 +49,5 @@ KLOG_ENUM_MACRO(KLOG_RESTORE_DEFAULT_DUE_TO_BAD_REBOOT,
 KLOG_ENUM_MACRO(KLOG_DOCSIS_SNMP_REBOOT, "KLOG_DOCSIS_SNMP_REBOOT", "DOCSIS SNMP initiated reboot was detected and logged.")
 KLOG_ENUM_MACRO(KLOG_TR_REBOOT, "KLOG_TR_REBOOT", "TR-initiated reboot was detected and logged.")
 KLOG_ENUM_MACRO(KLOG_OTHER_REBOOT, "KLOG_OTHER_REBOOT", "Uncategorized reboot was detected and logged.")
+KLOG_ENUM_MACRO(KLOG_OLD_SOFTWARE_REBOOT, "KLOG_OLD_SOFTWARE_REBOOT", "Force reboot after upgrading from old software.")
 

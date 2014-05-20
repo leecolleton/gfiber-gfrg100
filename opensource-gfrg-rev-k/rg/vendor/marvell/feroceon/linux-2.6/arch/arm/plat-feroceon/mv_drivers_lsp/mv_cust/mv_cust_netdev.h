@@ -81,7 +81,7 @@ MV_STATUS   mv_cust_udp_dest_spec_set(int tx_port, uint16_t udp_dest_port, uint8
 void        mv_cust_omci_type_set(unsigned short int type);
 void        mv_cust_xpon_oam_rx_gh_set(int val);
 void        mv_cust_epon_oam_type_set(unsigned short int type);
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 void        mv_cust_igmp_type_set(unsigned short int type);
 #endif
 void        mv_cust_omci_gemport_set(int gemport);

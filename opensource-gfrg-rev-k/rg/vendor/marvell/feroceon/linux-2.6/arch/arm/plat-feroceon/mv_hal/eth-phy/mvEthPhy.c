@@ -227,59 +227,18 @@ void    rdPhy(MV_U32 phyAddr, MV_U32 regOffs)
 *******************************************************************************/
 MV_STATUS mvEthPhyRegRead(MV_U32 phyAddr, MV_U32 regOffs, MV_U16 *data)
 {
-	MV_U32 			smiReg;
-	volatile MV_U32 timeout;
+        while (MV_REG_READ(ethphyHalData.ethPhySmiReg) & ETH_PHY_SMI_BUSY_MASK);
 
-	/* check parameters */
-	if ((phyAddr << ETH_PHY_SMI_DEV_ADDR_OFFS) & ~ETH_PHY_SMI_DEV_ADDR_MASK) {
-		mvOsPrintf("mvEthPhyRegRead: Err. Illegal PHY device address %d\n",
-				phyAddr);
-		return MV_FAIL;
-	}
-	if ((regOffs <<  ETH_PHY_SMI_REG_ADDR_OFFS) & ~ETH_PHY_SMI_REG_ADDR_MASK) {
-		mvOsPrintf("mvEthPhyRegRead: Err. Illegal PHY register offset %d\n",
-				regOffs);
-		return MV_FAIL;
-	}
+	MV_REG_WRITE(ethphyHalData.ethPhySmiReg,
+		(phyAddr <<  ETH_PHY_SMI_DEV_ADDR_OFFS) |
+		(regOffs << ETH_PHY_SMI_REG_ADDR_OFFS) |
+		ETH_PHY_SMI_OPCODE_READ);
 
-	timeout = ETH_PHY_TIMEOUT;
-	/* wait till the SMI is not busy*/
-	do {
-		/* read smi register */
-		smiReg = MV_REG_READ(ethphyHalData.ethPhySmiReg);
-		if (timeout-- == 0) {
-			mvOsPrintf("mvEthPhyRegRead: SMI busy timeout\n");
-			return MV_FAIL;
-		}
-	} while (smiReg & ETH_PHY_SMI_BUSY_MASK);
-
-	/* fill the phy address and regiser offset and read opcode */
-	smiReg = (phyAddr <<  ETH_PHY_SMI_DEV_ADDR_OFFS) | (regOffs << ETH_PHY_SMI_REG_ADDR_OFFS)|
-			   ETH_PHY_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	MV_REG_WRITE(ethphyHalData.ethPhySmiReg, smiReg);
-
-	timeout = ETH_PHY_TIMEOUT;
-
-	/* wait till readed value is ready */
-	do {
-		/* read smi register */
-		smiReg = MV_REG_READ(ethphyHalData.ethPhySmiReg);
-
-		if (timeout-- == 0) {
-			mvOsPrintf("mvEthPhyRegRead: SMI read-valid timeout\n");
-			return MV_FAIL;
-		}
-	} while (!(smiReg & ETH_PHY_SMI_READ_VALID_MASK));
-
-	/* Wait for the data to update in the SMI register */
-	for (timeout = 0; timeout < ETH_PHY_TIMEOUT; timeout++)
-		;
+	while (!(MV_REG_READ(ethphyHalData.ethPhySmiReg) & ETH_PHY_SMI_READ_VALID_MASK));
 
 	*data = (MV_U16)(MV_REG_READ(ethphyHalData.ethPhySmiReg) & ETH_PHY_SMI_DATA_MASK);
 
-	return MV_OK;
+        return MV_OK;
 }
 
 /*******************************************************************************
@@ -303,38 +262,11 @@ MV_STATUS mvEthPhyRegRead(MV_U32 phyAddr, MV_U32 regOffs, MV_U16 *data)
 *******************************************************************************/
 MV_STATUS mvEthPhyRegWrite(MV_U32 phyAddr, MV_U32 regOffs, MV_U16 data)
 {
-	MV_U32 			smiReg;
-	volatile MV_U32 timeout;
+	while (MV_REG_READ(ethphyHalData.ethPhySmiReg) & ETH_PHY_SMI_BUSY_MASK);
 
-	/* check parameters */
-	if ((phyAddr <<  ETH_PHY_SMI_DEV_ADDR_OFFS) & ~ETH_PHY_SMI_DEV_ADDR_MASK) {
-		mvOsPrintf("mvEthPhyRegWrite: Err. Illegal phy address \n");
-		return MV_BAD_PARAM;
-	}
-	if ((regOffs <<  ETH_PHY_SMI_REG_ADDR_OFFS) & ~ETH_PHY_SMI_REG_ADDR_MASK) {
-		mvOsPrintf("mvEthPhyRegWrite: Err. Illegal register offset \n");
-		return MV_BAD_PARAM;
-	}
-
-	timeout = ETH_PHY_TIMEOUT;
-
-	/* wait till the SMI is not busy*/
-	do {
-		/* read smi register */
-		smiReg = MV_REG_READ(ethphyHalData.ethPhySmiReg);
-		if (timeout-- == 0) {
-			mvOsPrintf("mvEthPhyRegWrite: SMI busy timeout\n");
-		return MV_TIMEOUT;
-		}
-	} while (smiReg & ETH_PHY_SMI_BUSY_MASK);
-
-	/* fill the phy address and regiser offset and write opcode and data*/
-	smiReg = (data << ETH_PHY_SMI_DATA_OFFS);
-	smiReg |= (phyAddr <<  ETH_PHY_SMI_DEV_ADDR_OFFS) | (regOffs << ETH_PHY_SMI_REG_ADDR_OFFS);
-	smiReg &= ~ETH_PHY_SMI_OPCODE_READ;
-
-	/* write the smi register */
-	MV_REG_WRITE(ethphyHalData.ethPhySmiReg, smiReg);
+	MV_REG_WRITE(ethphyHalData.ethPhySmiReg, data |
+		(phyAddr <<  ETH_PHY_SMI_DEV_ADDR_OFFS) |
+		(regOffs << ETH_PHY_SMI_REG_ADDR_OFFS));
 
 	return MV_OK;
 }

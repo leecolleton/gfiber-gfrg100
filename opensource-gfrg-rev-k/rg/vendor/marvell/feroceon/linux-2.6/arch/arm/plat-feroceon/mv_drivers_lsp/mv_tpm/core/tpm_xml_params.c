@@ -2169,8 +2169,7 @@ int get_pon_def_params (void  **param)
 *
 * INPUTS:
 *
-* OUTPUTS:  dba_mode      - DBA mode is either 0 for SW or 1 for HW
-*           xvr_pol       - XVR polarity (0 - high, 1 - low)
+* OUTPUTS:  xvr_pol       - XVR polarity (0 - high, 1 - low)
 *           dg_pol        - Dying Gasp polarity (1 - high, 0 - low)
 *
 * RETURNS:  US_RC_OK, US_RC_FAIL or US_RC_NOT_FOUND

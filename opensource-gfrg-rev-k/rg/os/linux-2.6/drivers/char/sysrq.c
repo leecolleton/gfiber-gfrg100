@@ -1,6 +1,6 @@
 /* -*- linux-c -*-
  *
- *	$Id: sysrq.c,v 1.4 2010/04/08 18:46:57 dmitri Exp $
+ *	$Id: sysrq.c,v 1.1.1.2.28.2 2012/08/23 19:18:41 athill Exp $
  *
  *	Linux Magic System Request Key Hacks
  *
@@ -168,6 +168,24 @@ static struct sysrq_key_op sysrq_show_timers_op = {
 	.handler	= sysrq_handle_show_timers,
 	.help_msg	= "show-all-timers(Q)",
 	.action_msg	= "Show Pending Timers",
+};
+
+#ifdef CONFIG_ARM
+void sysrq_show_interrupts(void);
+#endif
+static void sysrq_handle_show_interrupts(int key, struct tty_struct *tty)
+{
+#ifdef CONFIG_ARM
+	sysrq_show_interrupts();
+#else
+	printk("Function not implemented on this architecture\n");
+#endif
+}
+
+static struct sysrq_key_op sysrq_show_interrupts_op = {
+	.handler	= sysrq_handle_show_interrupts,
+	.help_msg	= "show-all-interrupts(X)",
+	.action_msg	= "Show Interrupts",
 };
 
 static void sysrq_handle_mountro(int key, struct tty_struct *tty)
@@ -356,7 +374,7 @@ static struct sysrq_key_op *sysrq_key_table[36] = {
 	NULL,				/* v */
 	&sysrq_showstate_blocked_op,	/* w */
 	/* x: May be registered on ppc/powerpc for xmon */
-	NULL,				/* x */
+	&sysrq_show_interrupts_op,	/* x */
 	NULL,				/* y */
 	NULL				/* z */
 };

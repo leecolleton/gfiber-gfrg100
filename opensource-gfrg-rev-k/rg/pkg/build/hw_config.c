@@ -3102,12 +3102,15 @@ void hardware_features(void)
 	    token_set_y("CONFIG_IPSEC_USE_FEROCEON_CRYPTO");
 	}
 
-	if (token_get("CONFIG_MV_WIFI_8764"))
+	if (token_get("CONFIG_MV_WIFI_8764") || token_get("CONFIG_MV_WIFI_8864"))
 	{
 	    marvell_8xxx_add(0, token_get("CONFIG_RG_FIBERTEC") ? 3 : 1);
 	    marvell_8xxx_add(1, token_get("CONFIG_RG_FIBERTEC") ? 3 : 1);
 	}
 
+	if (token_get("CONFIG_HW_SENSORS"))
+	    token_set_m("CONFIG_RG_SENSORS");
+	
 	if (token_get("CONFIG_HW_LEDS"))
 	{
 	    token_set_y("CONFIG_RG_UIEVENTS");

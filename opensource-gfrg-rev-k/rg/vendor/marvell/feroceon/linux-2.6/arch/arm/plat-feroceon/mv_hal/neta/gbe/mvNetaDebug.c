@@ -112,6 +112,18 @@ static void mvEthMibPrint(int port, int mib, MV_U32 offset, MV_U8 *mib_name)
 		mvOsPrintf("  t%-32s: 0x%08x%08x\n", mib_name, regValHi, regVaLo);
 }
 
+unsigned long mvEthMibCounterGet(int port, int mib, MV_U32 offset)
+{
+	MV_U32 regVaLo, regValHi = 0;
+
+	regVaLo = mvNetaMibCounterRead(port, mib, offset, &regValHi);
+
+	if (!regValHi)
+	    return (regVaLo);
+	else
+	    return ((regValHi << 32) | regVaLo);
+}
+
 void mvEthTxpWrrRegs(int port, int txp)
 {
 	int queue;

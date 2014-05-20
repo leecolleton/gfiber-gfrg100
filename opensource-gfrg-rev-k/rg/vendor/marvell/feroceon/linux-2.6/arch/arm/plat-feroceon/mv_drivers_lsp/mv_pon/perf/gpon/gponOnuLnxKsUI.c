@@ -3071,6 +3071,8 @@ int onuGponUiMiscHelpShow(char* buf)
   off += mvOsSPrintf(buf+off, "Configuration Commands[HEX]\n");
   off += mvOsSPrintf(buf+off, "============================================================================\n");
   off += mvOsSPrintf(buf+off, " echo [SN1] [SN2]                > serialNumCfg    - config serial number\n");
+  off += mvOsSPrintf(buf+off, " echo [PWD1] [PWD2] [PWD3]       > passwordCfg     - config password\n");
+  off += mvOsSPrintf(buf+off, "                                                     10 bytes: PWD1, PWD2, 2 MSB of PWD3\n");
   off += mvOsSPrintf(buf+off, " echo [TxEnThreshold]            > txEnThresCfg    - config tx enable threshold\n");
   off += mvOsSPrintf(buf+off, " echo [TC Period]                > utmTxPeriodCfg  - config utm tc period\n");
   off += mvOsSPrintf(buf+off, " echo [TC Valid]                 > utmTcValidCfg   - config utm tc valid\n");

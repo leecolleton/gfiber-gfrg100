@@ -1013,7 +1013,7 @@ int sfs_help_cfg_age_count(char* buf)
     off += sprintf(buf+off, "\t[api_group]       (dec)PnC API group, supported TPM API group,l2[%d], L3[%d], L4[%d] \n", TPM_API_L2_PRIM, TPM_API_L3_TYPE, TPM_API_IPV4);
     off += sprintf(buf+off, "\t[rule_idx ]       (dec)rule index returned when add L2/L3/L4 PnC rules\n");
     off += sprintf(buf+off, "\t[lu_rule_mask]    (dec)Whether need to mask least used loopup for specific PnC rule.1: mask, 0: enable\n");
-    off += sprintf(buf+off, "echo [owner_id] [api_group] [rule_idx]                 > get_hit_count   - Get hitted counter for specific PnC rules\n");
+    off += sprintf(buf+off, "echo [owner_id] [api_group] [rule_idx] [hit_reset]     > get_hit_count   - Get hitted counter for specific PnC rules\n");
     off += sprintf(buf+off, "\t[owner_id ]       (dec)Application owner ID\n");
     off += sprintf(buf+off, "\t[api_group]       (dec)PnC API group, supported TPM API group,l2[%d], L3[%d], L4[%d] \n", TPM_API_L2_PRIM, TPM_API_L3_TYPE, TPM_API_IPV4);
     off += sprintf(buf+off, "\t[rule_idx ]       (dec)rule index returned when add L2/L3/L4 PnC rules\n");

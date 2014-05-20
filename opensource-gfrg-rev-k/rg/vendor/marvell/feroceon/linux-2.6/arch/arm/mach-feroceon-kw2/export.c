@@ -431,7 +431,7 @@ EXPORT_SYMBOL(mvBoardEthComplexConfigGet);
 
 #endif /* CONFIG_MV_INCLUDE_TPM */
 
-
+EXPORT_SYMBOL(mvCtrlTemperatureGet);
 
 #ifdef CONFIG_MV_PON
 EXPORT_SYMBOL(mv_pon_link_state_register);

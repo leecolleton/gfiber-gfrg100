@@ -88,6 +88,7 @@ typedef enum {
     KOS_CDT_PSB6973_SWITCH = 61,
     KOS_CDT_IGMP_PROXY = 62,
     KOS_CDT_FEROCEON_SWITCH = 63,
+    KOS_CDT_SENSORS = 64,
 } kos_chardev_type_t;
 
 #endif

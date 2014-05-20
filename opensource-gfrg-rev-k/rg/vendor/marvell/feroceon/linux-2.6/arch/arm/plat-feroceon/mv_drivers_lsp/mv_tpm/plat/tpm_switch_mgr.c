@@ -533,7 +533,7 @@ tpm_error_code_t tpm_sw_set_isolate_eth_port_vector
         memPorts[i] = i;
     }
 
-    for(i=TPM_SRC_PORT_UNI_0; i<TPM_MAX_NUM_ETH_PORTS; i++)
+    for (i=TPM_SRC_PORT_UNI_0; i<TPM_MAX_NUM_UNI_PORTS; i++)
     {
 	sw_port_num = tpm_db_eth_port_switch_port_get(i);
 
@@ -545,7 +545,7 @@ tpm_error_code_t tpm_sw_set_isolate_eth_port_vector
 		return ERR_SRC_PORT_INVALID;
 	}
 
-        if(port_vector & (1 << (i-1)))
+        if(port_vector & (1 << i))
         {
             memPorts[sw_port_num] = sw_port_num;
             printk(KERN_INFO
@@ -5896,7 +5896,7 @@ tpm_error_code_t tpm_sw_pm_1_read
 * INPUTS:
 *       owner_id        - APP owner id  should be used for all API calls.
 *       src_port        - Source port in UNI port index, UNI0, UNI1...UNI4.
-*       tpm_swport_pm_3 - Holds PM data
+*       tpm_swport_pm_3_all_t - Holds PM data
 *
 * OUTPUTS:
 *       PM data is supplied structure.
@@ -5909,12 +5909,13 @@ tpm_error_code_t tpm_sw_pm_3_read
 (
     uint32_t            owner_id,
     tpm_src_port_type_t src_port,
-    tpm_swport_pm_3_t  *tpm_swport_pm_3
+    tpm_swport_pm_3_all_t *tpm_swport_pm_3
 )
 {
     tpm_error_code_t retVal = TPM_RC_OK;
     int32_t          lPort  = 0;
     GT_STATS_COUNTER_SET3 statsCounterSet;
+    GT_PORT_STAT2         ctr;
 
     if (trace_sw_dbg_flag)
     {
@@ -5934,23 +5935,50 @@ tpm_error_code_t tpm_sw_pm_3_read
     if (retVal != TPM_RC_OK)
     {
         printk(KERN_ERR
-               "%s:%d: function failed\r\n", __FUNCTION__,__LINE__);
+               "%s:%d: function mv_switch_get_port_counters failed\r\n", __FUNCTION__,__LINE__);
     }
 
-    tpm_swport_pm_3->dropEvents              = 0;
-    tpm_swport_pm_3->octets                  = statsCounterSet.InGoodOctetsLo;
-    tpm_swport_pm_3->packets                 = statsCounterSet.InUnicasts;
-    tpm_swport_pm_3->broadcastPackets        = statsCounterSet.InBroadcasts;
-    tpm_swport_pm_3->multicastPackets        = statsCounterSet.InMulticasts;
-    tpm_swport_pm_3->undersizePackets        = 0;
-    tpm_swport_pm_3->fragments               = statsCounterSet.Fragments;
-    tpm_swport_pm_3->jabbers                 = statsCounterSet.Jabber;
-    tpm_swport_pm_3->packets_64Octets        = statsCounterSet.Octets64;
-    tpm_swport_pm_3->packets_65_127Octets    = statsCounterSet.Octets127;
-    tpm_swport_pm_3->packets_128_255Octets   = statsCounterSet.Octets255;
-    tpm_swport_pm_3->packets_256_511Octets   = statsCounterSet.Octets511;
-    tpm_swport_pm_3->packets_512_1023Octets  = statsCounterSet.Octets1023;
-    tpm_swport_pm_3->packets_1024_1518Octets = statsCounterSet.OctetsMax;
+    retVal = mv_switch_get_port_drop_counters(lPort, &ctr);
+    if (retVal != TPM_RC_OK)
+    {
+        printk(KERN_ERR
+               "%s:%d: function mv_switch_get_port_drop_counters failed\r\n", __FUNCTION__,__LINE__);
+    }
+
+    
+
+    tpm_swport_pm_3->dropEvents       = (ctr.inDiscardHi<<16) + ctr.inDiscardLo;
+    tpm_swport_pm_3->InGoodOctetsLo   = statsCounterSet.InGoodOctetsLo;
+    tpm_swport_pm_3->InGoodOctetsHi   = statsCounterSet.InGoodOctetsHi;
+    tpm_swport_pm_3->InBadOctets      = statsCounterSet.InBadOctets;
+    tpm_swport_pm_3->OutFCSErr        = statsCounterSet.OutFCSErr;
+    tpm_swport_pm_3->InUnicasts       = statsCounterSet.InUnicasts;
+    tpm_swport_pm_3->Deferred         = statsCounterSet.Deferred;
+    tpm_swport_pm_3->InBroadcasts     = statsCounterSet.InBroadcasts;
+    tpm_swport_pm_3->InMulticasts     = statsCounterSet.InMulticasts;
+    tpm_swport_pm_3->Octets64         = statsCounterSet.Octets64;
+    tpm_swport_pm_3->Octets255        = statsCounterSet.Octets255;
+    tpm_swport_pm_3->Octets511        = statsCounterSet.Octets511;
+    tpm_swport_pm_3->Octets1023       = statsCounterSet.Octets1023;
+    tpm_swport_pm_3->OctetsMax        = statsCounterSet.OctetsMax;
+    tpm_swport_pm_3->OutOctetsLo      = statsCounterSet.OutOctetsLo;
+    tpm_swport_pm_3->OutOctetsHi      = statsCounterSet.OutOctetsHi;
+    tpm_swport_pm_3->OutUnicasts      = statsCounterSet.OutUnicasts;
+    tpm_swport_pm_3->Excessive        = statsCounterSet.Excessive;
+    tpm_swport_pm_3->OutMulticasts    = statsCounterSet.OutMulticasts;
+    tpm_swport_pm_3->OutBroadcasts    = statsCounterSet.OutBroadcasts;
+    tpm_swport_pm_3->Single           = statsCounterSet.Single;
+    tpm_swport_pm_3->OutPause         = statsCounterSet.OutPause;
+    tpm_swport_pm_3->InPause          = statsCounterSet.InPause;
+    tpm_swport_pm_3->Multiple         = statsCounterSet.Multiple;
+    tpm_swport_pm_3->Undersize        = statsCounterSet.Undersize;
+    tpm_swport_pm_3->Fragments        = statsCounterSet.Fragments;
+    tpm_swport_pm_3->Oversize         = statsCounterSet.Oversize;
+    tpm_swport_pm_3->Jabber           = statsCounterSet.Jabber;
+    tpm_swport_pm_3->InMACRcvErr      = statsCounterSet.InMACRcvErr;
+    tpm_swport_pm_3->InFCSErr         = statsCounterSet.InFCSErr;
+    tpm_swport_pm_3->Collisions       = statsCounterSet.Collisions;
+    tpm_swport_pm_3->Late             = statsCounterSet.Late;
 
     if (trace_sw_dbg_flag)
     {

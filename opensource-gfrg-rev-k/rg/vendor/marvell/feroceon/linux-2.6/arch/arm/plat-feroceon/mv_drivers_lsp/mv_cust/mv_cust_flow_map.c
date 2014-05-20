@@ -198,10 +198,11 @@ int mv_cust_map_rule_set(mv_cust_ioctl_flow_map_t *cust_flow)
 
     if (gs_mv_cust_trace_flag) {
         MVCUST_TRACE_PRINT(KERN_INFO 
-                           "==ENTER==%s: vid[%d], pbits[%d], mod_vid[%d], mod_pbits[%d], T-CONT[%d], queue[%d], GEM port[%d], dir[%d]\n\r",
+                           "==ENTER==%s: vid[%d], pbits[%d], mod_vid[%d], mod_pbits[%d], T-CONT[%d], SWF queue[%d], HWF queue[%d], GEM port[%d], dir[%d]\n\r",
                             __FUNCTION__, vid, pbits, mod_vid, mod_pbits,
                            ((pkt_fwd!= NULL)? pkt_fwd->trg_port:0), 
                            ((pkt_fwd!= NULL)? pkt_fwd->trg_queue:0), 
+                           ((pkt_fwd!= NULL)? pkt_fwd->trg_hwf_queue:0),                            
                            ((pkt_fwd!= NULL)? pkt_fwd->gem_port:0),
                            cust_flow->dir);
     }
@@ -243,7 +244,12 @@ int mv_cust_map_rule_set(mv_cust_ioctl_flow_map_t *cust_flow)
     }
 
     if (pkt_fwd->trg_queue > MV_CUST_MAX_TRG_QUEUE_VALUE) {
-        MVCUST_ERR_PRINT(KERN_ERR "trg_queue[%d] exceeds maximum value[%d] \n\r", pkt_fwd->trg_queue, MV_CUST_MAX_TRG_QUEUE_VALUE);
+        MVCUST_ERR_PRINT(KERN_ERR "SWF trg_queue[%d] exceeds maximum value[%d] \n\r", pkt_fwd->trg_queue, MV_CUST_MAX_TRG_QUEUE_VALUE);
+        return MV_CUST_FAIL;
+    }   
+
+    if (pkt_fwd->trg_hwf_queue > MV_CUST_MAX_TRG_QUEUE_VALUE) {
+        MVCUST_ERR_PRINT(KERN_ERR "HWF trg_queue[%d] exceeds maximum value[%d] \n\r", pkt_fwd->trg_hwf_queue, MV_CUST_MAX_TRG_QUEUE_VALUE);
         return MV_CUST_FAIL;
     }   
 
@@ -286,6 +292,7 @@ int mv_cust_map_rule_set(mv_cust_ioctl_flow_map_t *cust_flow)
             /* Save forwarding information */        
             pPbitsMap->pkt_fwd[pbits].trg_port  = pkt_fwd->trg_port;
             pPbitsMap->pkt_fwd[pbits].trg_queue = pkt_fwd->trg_queue;
+            pPbitsMap->pkt_fwd[pbits].trg_hwf_queue = pkt_fwd->trg_hwf_queue;
             pPbitsMap->pkt_fwd[pbits].gem_port  = pkt_fwd->gem_port;
 
             /* Save mod_vid mod_pbits */
@@ -304,6 +311,7 @@ int mv_cust_map_rule_set(mv_cust_ioctl_flow_map_t *cust_flow)
             /* CLear forwarding information */        
             pPbitsMap->pkt_fwd[pbits].trg_port  = 0;
             pPbitsMap->pkt_fwd[pbits].trg_queue = 0;
+            pPbitsMap->pkt_fwd[pbits].trg_hwf_queue = 0;
             pPbitsMap->pkt_fwd[pbits].gem_port  = 0;
 
             /* Clear mod_vid mod_pbits */
@@ -333,6 +341,7 @@ int mv_cust_map_rule_set(mv_cust_ioctl_flow_map_t *cust_flow)
             /* Save forwarding information */        
             pPbitsMap->pkt_fwd[index].trg_port  = pkt_fwd->trg_port;
             pPbitsMap->pkt_fwd[index].trg_queue = pkt_fwd->trg_queue;
+            pPbitsMap->pkt_fwd[pbits].trg_hwf_queue = pkt_fwd->trg_hwf_queue;
             pPbitsMap->pkt_fwd[index].gem_port  = pkt_fwd->gem_port;
             pPbitsMap->pkt_fwd[index].in_use    = 1;
             
@@ -352,6 +361,7 @@ int mv_cust_map_rule_set(mv_cust_ioctl_flow_map_t *cust_flow)
             /* Clear forwarding information */        
             pPbitsMap->pkt_fwd[index].trg_port  = 0;
             pPbitsMap->pkt_fwd[index].trg_queue = 0;
+            pPbitsMap->pkt_fwd[pbits].trg_hwf_queue = 0;
             pPbitsMap->pkt_fwd[index].gem_port  = 0;
             pPbitsMap->pkt_fwd[index].in_use    = 0;
             /* clear mod_vid mod_pbits */
@@ -684,6 +694,7 @@ int mv_cust_tag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
     if (pPktFrwd->in_use != 0) { 
         pkt_fwd->trg_port    = pPktFrwd->trg_port;
         pkt_fwd->trg_queue   = pPktFrwd->trg_queue;
+        pkt_fwd->trg_hwf_queue = pPktFrwd->trg_hwf_queue;
         pkt_fwd->gem_port    = pPktFrwd->gem_port;
         cust_flow->mod_vid   = pPbitsMap->mod_vid[index];
         cust_flow->mod_pbits = pPbitsMap->mod_pbits[index];       
@@ -691,9 +702,9 @@ int mv_cust_tag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
         
         if (gs_mv_cust_trace_flag) {
             MVCUST_TRACE_PRINT(KERN_INFO
-                               "trg_port(%d), trg_queue(%d) gem_port(%d), mod_vid(%d), mod_pbits(%d)\n\r",
-                                cust_flow->pkt_frwd.trg_port, cust_flow->pkt_frwd.trg_queue, cust_flow->pkt_frwd.gem_port,
-                                cust_flow->mod_vid, cust_flow->mod_pbits);
+                               "trg_port(%d), trg_queue(%d) trg_hwf_queue(%d) gem_port(%d), mod_vid(%d), mod_pbits(%d)\n\r",
+                                cust_flow->pkt_frwd.trg_port, cust_flow->pkt_frwd.trg_queue, cust_flow->pkt_frwd.trg_hwf_queue, 
+                                cust_flow->pkt_frwd.gem_port, cust_flow->mod_vid, cust_flow->mod_pbits);
         }
         
     }
@@ -706,6 +717,7 @@ int mv_cust_tag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
         if (pPktFrwd->in_use != 0) { 
             pkt_fwd->trg_port    = pPktFrwd->trg_port;
             pkt_fwd->trg_queue   = pPktFrwd->trg_queue;
+            pkt_fwd->trg_hwf_queue = pPktFrwd->trg_hwf_queue;
             pkt_fwd->gem_port    = pPktFrwd->gem_port;
             cust_flow->mod_vid   = pPbitsMap->mod_vid[index];
             cust_flow->mod_pbits = pPbitsMap->mod_pbits[index];       
@@ -713,9 +725,9 @@ int mv_cust_tag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
             
             if (gs_mv_cust_trace_flag) {
                 MVCUST_TRACE_PRINT(KERN_INFO
-                                   "trg_port(%d), trg_queue(%d) gem_port(%d), mod_vid(%d), mod_pbits(%d)\n\r",
-                                    cust_flow->pkt_frwd.trg_port, cust_flow->pkt_frwd.trg_queue, cust_flow->pkt_frwd.gem_port,
-                                    cust_flow->mod_vid, cust_flow->mod_pbits);
+                                   "trg_port(%d), trg_queue(%d) trg_hwf_queue(%d) gem_port(%d), mod_vid(%d), mod_pbits(%d)\n\r",
+                                    cust_flow->pkt_frwd.trg_port, cust_flow->pkt_frwd.trg_queue, cust_flow->pkt_frwd.trg_hwf_queue, 
+                                    cust_flow->pkt_frwd.gem_port, cust_flow->mod_vid, cust_flow->mod_pbits);
             }
             
         }
@@ -764,7 +776,6 @@ int mv_cust_untag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
     uint32_t              pbitsIndex = MV_CUST_PBITS_NOT_CARE_VALUE;
     mv_cust_flow_dir_e    dir        = MV_CUST_FLOW_DIR_US;
     uint32_t              dscp       = 0;
-    uint32_t              index      = 0;    
 
     if (gs_mv_cust_trace_flag) {
         MVCUST_TRACE_PRINT(KERN_INFO 
@@ -813,6 +824,7 @@ int mv_cust_untag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
             if (pPktFrwd->in_use != 0) {
                 cust_flow->pkt_frwd.trg_port  = pPktFrwd->trg_port;
                 cust_flow->pkt_frwd.trg_queue = pPktFrwd->trg_queue;
+                cust_flow->pkt_frwd.trg_hwf_queue = pPktFrwd->trg_hwf_queue;
                 cust_flow->pkt_frwd.gem_port  = pPktFrwd->gem_port;
                 cust_flow->mod_vid            = pPbitsMap->mod_vid[pbitsIndex];
                 cust_flow->mod_pbits          = pPbitsMap->mod_pbits[pbitsIndex];
@@ -820,9 +832,9 @@ int mv_cust_untag_map_rule_get(mv_cust_ioctl_flow_map_t *cust_flow)
                 
                 if (gs_mv_cust_trace_flag) {
                     MVCUST_TRACE_PRINT(KERN_INFO
-                                       "trg_port(%d), trg_queue(%d) gem_port(%d), mod_vid(%d), mod_pbits(%d)\n\r",
-                                        cust_flow->pkt_frwd.trg_port, cust_flow->pkt_frwd.trg_queue, cust_flow->pkt_frwd.gem_port,
-                                        cust_flow->mod_vid, cust_flow->mod_pbits);
+                                       "trg_port(%d), trg_queue(%d), trg_hwf_queue(%d), gem_port(%d), mod_vid(%d), mod_pbits(%d)\n\r",
+                                        cust_flow->pkt_frwd.trg_port, cust_flow->pkt_frwd.trg_queue, cust_flow->pkt_frwd.trg_hwf_queue,
+                                        cust_flow->pkt_frwd.gem_port, cust_flow->mod_vid, cust_flow->mod_pbits);
                     MVCUST_TRACE_PRINT(KERN_INFO
                                        "==EXIT==:\n\r");                                            
                 }
@@ -881,15 +893,16 @@ int mv_cust_map_table_print(void)
     for (table_index=0; table_index<MV_CUST_MAX_PBITS_MAP_TABLE_SIZE; table_index++) {
         if(gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].in_use != 0) {
                 printk(KERN_INFO "P-bits Flow Mapping Table %d\n----------------------------\n", table_index); 
-                printk(KERN_INFO "P-bits  in_use  mod_vid mod_pbits trg_port  trg_queue  gem_port\n"); 
+                printk(KERN_INFO "P-bits  in_use  mod_vid mod_pbits trg_port  trg_queue  trg_hwf_queue  gem_port\n"); 
                 for (index=0; index<MV_CUST_PBITS_MAP_MAX_ENTRY_NUM; index++) 
-                    printk(KERN_INFO "%1.1d       %3.3s     %4.4d    %1.1d          %2.2d        %2.2d         %4.4d\n", 
+                    printk(KERN_INFO "%1.1d       %3.3s     %4.4d    %1.1d          %2.2d        %2.2d         %2.2d            %4.4d\n", 
                                        index,
                                        (gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].pkt_fwd[index].in_use!=0)? "YES":"",
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].mod_vid[index],
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].mod_pbits[index],
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].pkt_fwd[index].trg_port, 
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].pkt_fwd[index].trg_queue,
+                                       gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].pkt_fwd[index].trg_hwf_queue,
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].pkt_fwd[index].gem_port);    
         
         }
@@ -910,15 +923,16 @@ int mv_cust_map_table_print(void)
     for (table_index=0; table_index<MV_CUST_MAX_PBITS_MAP_TABLE_SIZE; table_index++) {
         if(gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].in_use != 0) {
                 printk(KERN_INFO "P-bits Flow Mapping Table %d\n----------------------------\n", table_index); 
-                printk(KERN_INFO "P-bits  in_use  mod_vid mod_pbits trg_port  trg_queue  gem_port\n"); 
+                printk(KERN_INFO "P-bits  in_use  mod_vid mod_pbits trg_port  trg_queue  trg_hwf_queue  gem_port\n"); 
                 for (index=0; index<MV_CUST_PBITS_MAP_MAX_ENTRY_NUM; index++) 
-                    printk(KERN_INFO "%1.1d       %3.3s     %4.4d    %1.1d        %2.2d        %2.2d         %4.4d\n", 
+                    printk(KERN_INFO "%1.1d       %3.3s     %4.4d    %1.1d        %2.2d        %2.2d         %2.2d              %4.4d\n", 
                                        index,
                                        (gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].pkt_fwd[index].in_use!=0)? "YES":"",
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].mod_vid[index],
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].mod_pbits[index],
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].pkt_fwd[index].trg_port, 
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].pkt_fwd[index].trg_queue,
+                                       gs_pbits_map_table[MV_CUST_FLOW_DIR_US][table_index].pkt_fwd[index].trg_hwf_queue,
                                        gs_pbits_map_table[MV_CUST_FLOW_DIR_DS][table_index].pkt_fwd[index].gem_port);    
         
         }

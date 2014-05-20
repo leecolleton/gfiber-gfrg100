@@ -328,7 +328,7 @@
  * it make mixed 32/64bit operation impossible).
  */
 #define SIOCIWFIRSTPRIV	0x8BE0
-#define SIOCIWLASTPRIV	0x8BFF
+#define SIOCIWLASTPRIV	0x8C01/*0x8BFF*/
 /* Previously, we were using SIOCDEVPRIVATE, but we now have our
  * separate range because of collisions with other tools such as
  * 'mii-tool'.

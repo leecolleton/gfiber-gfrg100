@@ -479,7 +479,7 @@ mv64xxx_i2c_map_regs(struct platform_device *pd,
 	return 0;
 }
 
-static void __devexit
+static void /*__devexit*/
 mv64xxx_i2c_unmap_regs(struct mv64xxx_i2c_data *drv_data)
 {
 	if (drv_data->reg_base) {
@@ -559,7 +559,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
 	return rc;
 }
 
-static int __devexit
+static int /*__devexit*/
 mv64xxx_i2c_remove(struct platform_device *dev)
 {
 	struct mv64xxx_i2c_data		*drv_data = platform_get_drvdata(dev);

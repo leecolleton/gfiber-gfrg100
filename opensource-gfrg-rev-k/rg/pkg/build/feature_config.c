@@ -254,14 +254,14 @@ void hw_wireless_features(void)
 	}
     }
 
-    if (token_get("CONFIG_MV_WIFI_8764"))
+    if (token_get("CONFIG_MV_WIFI_8764") || token_get("CONFIG_MV_WIFI_8864"))
     {
         target_os_enable_wireless();
 	if (token_get("MODULE_RG_WLAN_AND_ADVANCED_WLAN"))
 	{
 	    token_set_y("CONFIG_RG_WIRELESS");
 	    token_set_y("CONFIG_RG_VENDOR_WLAN_SEC");
-	    if (!token_get("CONFIG_RG_INTEGRAL"))
+	    if (!token_get("CONFIG_RG_FIBERTEC") && !token_get("CONFIG_RG_INTEGRAL"))
 		token_set_y("CONFIG_RG_RADIUS_WBM_IN_CONN");
 	    token_set_y("CONFIG_RG_WPA_WBM");
 	    token_set_y("CONFIG_RG_8021X_WBM");
@@ -705,7 +705,9 @@ void general_features(void)
     	token_set_y("CONFIG_RG_EVENT_LOGGING");
 
 	/* SSH */
-	token_set_y("CONFIG_RG_SSH");
+	if (!token_get("CONFIG_RG_FIBERTEC") || 
+	     token_get("CONFIG_FIBERTEC_DOGFOOD"))
+	    token_set_y("CONFIG_RG_SSH");
 
 	/* SNTP Server */
 	token_set_y("CONFIG_RG_SNTPS");
@@ -3735,6 +3737,7 @@ void general_features(void)
 	token_set_y("CONFIG_PLIST");
         token_set_y("CONFIG_FEROCEON_PROC");
         token_set_y("CONFIG_FEROCEON_WATCHDOG");
+	token_set_y("CONFIG_MAGIC_SYSRQ");
 
 	token_set_y("CONFIG_CC_OPTIMIZE_FOR_SIZE");
 	token_set_y("CONFIG_KALLSYMS");
@@ -3989,6 +3992,8 @@ void general_features(void)
 
         if (token_get("CONFIG_RG_FIBERTEC"))
         {
+	    token_set_y("CONFIG_RFC1918_ONLY_NAT");
+
             /* Fibertec Network Topology:
              * 1. DATA V-Network. DATA Bridge:
              *    - DATA LAN (Management VLAN - PVID 1)
@@ -4014,8 +4019,11 @@ void general_features(void)
                 "Public WAN Ethernet");
             dev_add_desc("eth0.100", DEV_IF_USER_VLAN, DEV_IF_NET_INT,
                 "MEDIA LAN Ethernet");
-            dev_add_desc("eth1.2", DEV_IF_USER_VLAN, DEV_IF_NET_EXT,
-                "Data WAN Ethernet");
+	    if (!token_get("CONFIG_FIBERTEC_DOGFOOD"))
+	    {
+		dev_add_desc("eth1.2", DEV_IF_USER_VLAN, DEV_IF_NET_EXT,
+			"Data WAN Ethernet");
+	    }
 
             if (token_get("CONFIG_HW_PON_WAN"))
             {
@@ -4029,7 +4037,7 @@ void general_features(void)
 		dev_add_bridge("br1", DEV_IF_NET_INT, "eth0.4", "ath1", NULL);
 		dev_add_bridge("br2", DEV_IF_NET_EXT, "eth0.3", "eth1.3", NULL);
 	    }
-	    else if (token_get("CONFIG_MV_WIFI_8764"))
+	    else if (token_get("CONFIG_MV_WIFI_8764") || token_get("CONFIG_MV_WIFI_8864"))
 	    {
 		dev_add_bridge("br0", DEV_IF_NET_INT, "eth0.1", 
 		    "wdev0ap0", "wdev1ap0", NULL);
@@ -4046,12 +4054,19 @@ void general_features(void)
 		dev_add_bridge("br0", DEV_IF_NET_INT, "eth0", "ath0", NULL);
 	    else if (token_get("CONFIG_QUANTENNA_QHS_71X"))
 		dev_add_bridge("br0", DEV_IF_NET_INT, "eth0", "host0", NULL);
- 	    else if (token_get("CONFIG_MV_WIFI_8764"))
+ 	    else if (token_get("CONFIG_MV_WIFI_8764") || token_get("CONFIG_MV_WIFI_8864"))
 	    {
 		dev_add_bridge("br0", DEV_IF_NET_INT, "eth0", "wdev0ap0",
 		    "wdev1ap0", NULL);
 	    }
 	}
+
+	/* i2c support */
+	token_set_y("CONFIG_I2C");
+	token_set_y("CONFIG_I2C_CHARDEV");
+	token_set_y("CONFIG_I2C_MV64XXX");
+
+	token_set_y("CONFIG_RG_GDBSERVER");
     }
 
     if (token_get("CONFIG_RG_IPPHONE") || token_get("CONFIG_RG_ATA") ||
@@ -5158,11 +5173,12 @@ void general_features(void)
 	token_set_y("CONFIG_HOSTAPD_RSN_PREAUTH");
     }
 
-    if (token_get("CONFIG_MV_WIFI_8764"))
+    if (token_get("CONFIG_MV_WIFI_8764") || token_get("CONFIG_MV_WIFI_8864"))
     {
 	token_set_y("CONFIG_RG_HOSTAPD");
 	token_set_y("CONFIG_HOSTAPD_DRIVER_MARVELL");
 	token_set_y("CONFIG_HOSTAPD_V_0_8");
+	token_set_y("CONFIG_RG_WIRELESS_TOOLS");
     }
 
     if (token_get("CONFIG_RG_PPP_COMMON") || token_get("CONFIG_RG_8021X") ||

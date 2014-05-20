@@ -2597,6 +2597,7 @@ EXPORT_SYMBOL(tpm_set_pnc_counter_mask);
 * INPUTS:   owner_id     - APP owner id  should be used for all API calls
 *           api_type    - TPM API group type
 *           rule_idx     - The PnC rule index returned when created PnC rules
+*           hit_reset    - Should the API reset the hit counters after after reading
 *
 * OUTPUTS:
 *           rule_idx     - The hitted times of specific PnC rule
@@ -2611,11 +2612,12 @@ EXPORT_SYMBOL(tpm_set_pnc_counter_mask);
 tpm_error_code_t tpm_get_pnc_hit_count(uint32_t owner_id,
 				       tpm_api_type_t api_type,
 				       uint32_t rule_idx,
+				       uint8_t  hit_reset,
 				       uint32_t *hit_count)
 {
 	tpm_error_code_t ret_code;
 
-	ret_code = tpm_count_get_pnc_hit_count(owner_id, api_type, rule_idx, hit_count);
+	ret_code = tpm_count_get_pnc_hit_count(owner_id, api_type, rule_idx, hit_reset, hit_count);
 	return (ret_code);
 }
 EXPORT_SYMBOL(tpm_get_pnc_hit_count);

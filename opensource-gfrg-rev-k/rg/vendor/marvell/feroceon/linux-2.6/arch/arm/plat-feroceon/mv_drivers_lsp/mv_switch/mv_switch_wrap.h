@@ -2742,6 +2742,33 @@ int32_t mv_switch_get_port_counters
 );
 
 /*******************************************************************************
+* mv_switch_get_port_drop_counters
+*
+* DESCRIPTION:
+*       This function gets the port InDiscards, InFiltered, and OutFiltered counters.
+*
+* INPUTS:
+*       owner_id	- APP owner id - should be used for all API calls.
+*       lport       - Port number to write the register for.
+*
+* OUTPUTS:
+*       ctr         - the counters value.
+*
+* RETURNS:
+*       On success -  TPM_RC_OK.
+*       On error different types are returned according to the case - see tpm_error_code_t.
+*
+* COMMENTS:
+*        Clear on read.
+*
+*******************************************************************************/
+int32_t mv_switch_get_port_drop_counters
+(
+      uint32_t              lport,
+      GT_PORT_STAT2         *ctr
+);
+
+/*******************************************************************************
 * mv_switch_print_fdb
 *
 * DESCRIPTION:

@@ -42,12 +42,12 @@
 
 #include <mvOs.h>
 #include <ctrlEnv/mvCtrlEnvLib.h>
+#include <neta/pnc/mvPnc.h>
 
 #include "mv_cust_dev.h"
 #include "mv_cust_netdev.h"
 #include "mv_cust_flow_map.h"
 #include "mv_cust_mng_if.h"
-#include "pnc/mvPnc.h"
 
 /* YUVAL - update to pnc define */
 #define     MH_GEM_PORT_MASK                (0x0FFF)
@@ -63,7 +63,7 @@ static int    mv_cust_omci_gemport = 0;
 
 static int    mv_cust_omci_valid = 0;
 static int    mv_cust_eoam_valid = 0;
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 static int    mv_cust_igmp_detect = 1;
 static uint16_t mv_cust_igmp_type;
 static struct mv_eth_tx_spec     igmp_tx_spec = {0, MV_ETH_F_MH, 0, 0};
@@ -123,7 +123,7 @@ void mv_cust_eoam_print(void)
     }
 }
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 void mv_cust_igmp_print(void)
 {
     printk("************* IGMP Configuration *****************\n\n");
@@ -528,7 +528,7 @@ int mv_cust_eoam_tx(int port, struct net_device *dev, struct sk_buff *skb,
 }
 
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 int mv_cust_igmp_tx(int port, struct net_device *dev, struct sk_buff *skb,
                     struct mv_eth_tx_spec *tx_spec_out)
 {
@@ -765,7 +765,7 @@ void mv_cust_xpon_oam_rx_gh_set(int val)
 EXPORT_SYMBOL(mv_cust_xpon_oam_rx_gh_set);
 
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 void mv_cust_igmp_type_set(uint16_t type)
 {
     mv_cust_igmp_type = htons(type);
@@ -826,7 +826,7 @@ static int mv_cust_eoam_type_parse(uint8_t *data)
 }
 
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 static int mv_cust_igmp_parse(uint8_t *data)
 {
     uint16_t ety;
@@ -1009,7 +1009,7 @@ static int mv_cust_epon_oam_rx(int port, struct net_device *dev, struct sk_buff 
     return 1;
 }
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 static int mv_cust_igmp_rx(int port, struct net_device *dev, struct sk_buff *skb, struct neta_rx_desc *rx_desc)
 {
     uint32_t rx_bytes;
@@ -1130,7 +1130,7 @@ void mv_cust_rx_func(int port, int rxq, struct net_device *dev,
             }
         }
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
         if (mv_cust_igmp_detect) {
             if (mv_cust_igmp_rx(port, dev, skb, rx_desc)) {
                 if(mv_cust_debug_code)
@@ -1156,18 +1156,15 @@ void mv_cust_rx_func(int port, int rxq, struct net_device *dev,
             if (mv_cust_flow_map_rx(port, dev, skb, rx_desc)) {
                 if(mv_cust_debug_code)
                     printk("%s flow map\n", __func__);
-                return;
             }
-        } 
-	else 
-	    return;
+        }
+        return;
 #endif
     }
 
 
     MVCUST_ERR_PRINT("Special pkt arrived from port(%d), was not handled. \n", port);
-    if (rx_desc->pncInfo & NETA_PNC_RX_SPECIAL)  
-	dev_kfree_skb_any(skb);
+    dev_kfree_skb_any(skb);
     if(mv_cust_debug_code) {
         printk("Input Packet first bytes:\n");
         for (i=0;i<24;i++) {
@@ -1194,7 +1191,7 @@ int mv_cust_tx_func(int port, struct net_device *dev, struct sk_buff *skb,
         return 1;
 #endif
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
     if (mv_cust_igmp_tx(port, dev, skb, tx_spec_out))
         return 1;
 #endif
@@ -1248,10 +1245,11 @@ int mvcust_netdev_init(void)
     /* Set global constants */
     mv_cust_xpon_oam_type = htons(0xBABA);
 
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
     mv_cust_igmp_type     = htons(0xA000);
 #endif
     mv_cust_loopdet_type  = htons(0xA0A0);
 
     return 0;
 }
+EXPORT_SYMBOL(mv_cust_tag_map_rule_get);

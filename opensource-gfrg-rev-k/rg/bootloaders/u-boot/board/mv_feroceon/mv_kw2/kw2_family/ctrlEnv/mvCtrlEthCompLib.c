@@ -165,6 +165,7 @@ static void mvEthCompSetSerdesDefaults(void)
 	MV_U32 size = sizeof(serdesDefVal) / sizeof(serdesDefVal[0]);
 	MV_SERDES_CFG *srdsCfg;
 	MV_U16 val;
+	int board_id;
 
 	for (i = 0; i < size; i++) {
 		srdsCfg = &serdesDefVal[i];
@@ -175,6 +176,15 @@ static void mvEthCompSetSerdesDefaults(void)
 		val |= srdsCfg->val;
 		mvEthCompSerdesRegWrite(srdsCfg->reg, val);
 	}
+
+	/* Configure QSGMII CPU interface signal strength (Actiontec specific) */
+	board_id = mvBoardIdGet();
+	if (board_id == MI424WR_I_ID || board_id == MI424WR_J_ID ||
+		board_id == MI424WR_K0_ID || board_id == MI424WR_K2_ID)
+	{
+		mvEthCompSerdesRegWrite(0x64, 0x280);
+	}
+
 	return;
 }
 

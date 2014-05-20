@@ -93,9 +93,9 @@ ifeq ($(IN_RGSRC_ROOT)-$(CONFIG_RG_OS_LINUX)-$(JMKE_DOING_MAKE_CONFIG),y-y-)
   endif
   $(OPENRG_IMG):
 	$(MAKE) -C os
-ifneq ($(CONFIG_RG_GPL),)
-	@echo "Actiontec RG build has been completed"
-endif
+  ifneq ($(CONFIG_RG_GPL),)
+	@echo "GFIBER GPL build has been completed."
+  endif
 
   ifeq ($(CONFIG_RG_GPL)$(CONFIG_RG_JPKG_SRC),)
     legacy_make_os_modules:

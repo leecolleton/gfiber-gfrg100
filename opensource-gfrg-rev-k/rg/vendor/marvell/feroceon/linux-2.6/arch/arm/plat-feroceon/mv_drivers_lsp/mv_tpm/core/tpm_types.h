@@ -883,6 +883,46 @@ typedef struct {
 	uint32_t packets_1024_1518Octets;
 } tpm_swport_pm_3_t;
 
+/*
+  All counter set 3 is used by 88E6093 and 88E6065
+*/
+typedef struct {
+	uint32_t  dropEvents;
+	uint32_t  InGoodOctetsLo;
+	uint32_t  InGoodOctetsHi;
+	uint32_t  InBadOctets;
+	uint32_t  OutFCSErr;
+	uint32_t  InUnicasts;
+	uint32_t  Deferred;
+	uint32_t  InBroadcasts;
+	uint32_t  InMulticasts;
+	uint32_t  Octets64;
+	uint32_t  Octets127;
+	uint32_t  Octets255;
+	uint32_t  Octets511;
+	uint32_t  Octets1023;
+	uint32_t  OctetsMax;
+	uint32_t  OutOctetsLo;
+	uint32_t  OutOctetsHi;
+	uint32_t  OutUnicasts;
+	uint32_t  Excessive;
+	uint32_t  OutMulticasts;
+	uint32_t  OutBroadcasts;
+	uint32_t  Single;
+	uint32_t  OutPause;
+	uint32_t  InPause;
+	uint32_t  Multiple;
+	uint32_t  Undersize;
+	uint32_t  Fragments;
+	uint32_t  Oversize;
+	uint32_t  Jabber;
+	uint32_t  InMACRcvErr;
+	uint32_t  InFCSErr;
+	uint32_t  Collisions;
+	uint32_t  Late;
+
+} tpm_swport_pm_3_all_t;
+
 /******************************************************************************/
 /********************************** Initialisation defs ***********************/
 /******************************************************************************/

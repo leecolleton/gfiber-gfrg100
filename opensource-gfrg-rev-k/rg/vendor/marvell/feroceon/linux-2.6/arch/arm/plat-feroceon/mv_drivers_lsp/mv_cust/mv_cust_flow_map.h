@@ -69,6 +69,7 @@ typedef struct mv_cust_pkt_frwd {
     uint32_t                in_use;
     mv_cust_trg_port_type_t trg_port;                                         
     uint32_t                trg_queue;                      
+    uint32_t                trg_hwf_queue;    
     mv_cust_gem_port_key_t  gem_port;
 } mv_cust_pkt_frwd_t;
 

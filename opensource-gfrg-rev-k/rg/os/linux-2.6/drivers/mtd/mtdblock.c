@@ -1,7 +1,7 @@
 /*
  * Direct MTD block device access
  *
- * $Id: mtdblock.c,v 1.7 2010/04/08 19:02:22 dmitri Exp $
+ * $Id: mtdblock.c,v 1.1.1.2.40.3 2013/07/18 20:49:00 athill Exp $
  *
  * (C) 2000-2003 Nicolas Pitre <nico@cam.org>
  * (C) 1999-2003 David Woodhouse <dwmw2@infradead.org>
@@ -150,6 +150,18 @@ static int do_cached_write (struct mtdblk_dev *mtdblk, unsigned long pos,
 			ret = erase_write (mtd, pos, size, buf);
 			if (ret)
 				return ret;
+		} else if (!sect_start && (offset >= 0x1f000)) {
+		    /*
+		     * Linux Block device mechanism is forcing the writes to MTD Block device 
+		     * to be aligned at 4096.
+		     * Due to this whenever the first RG_CONF section (at offset 0x1f000) 
+		     * needs to be written to Flash, it results in RG_FACTORY (at offset 0) 
+		     * also being written to flash. 
+		     * This change is to avoid writes to block consisting RG_FACTORY
+		     */
+#if 0
+			printk("do_cached_write: %d+%d, %d/%d, not writing RG_FACTORY\n", sect_start, offset, pos, len);
+#endif
 		} else {
 			/* Partial sector: need to use the cache */
 

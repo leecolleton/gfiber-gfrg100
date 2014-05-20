@@ -65,7 +65,7 @@ void    mvcust_sysfs_delete    (void);
 
 void    mv_cust_omci_print         (void);
 void    mv_cust_eoam_print         (void);
-#ifdef MV_CUST_IGMP_HANDLE
+#ifdef CONFIG_MV_CUST_IGMP_HANDLE
 void    mv_cust_igmp_print         (void);
 #endif
 void    mv_cust_loopdet_print      (void);

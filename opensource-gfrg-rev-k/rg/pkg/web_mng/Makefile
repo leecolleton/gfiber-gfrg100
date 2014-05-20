@@ -8,7 +8,11 @@ JMK_SUBDIRS+=lib
 ifndef CONFIG_RG_GPL
 
 ifneq ($(CONFIG_RG_WBM)$(CONFIG_RG_SSI_PAGES)$(CONFIG_RG_JNET_SERVER)),)
+ifdef ACTIONTEC_NEW_GUI_GOOGLE
+  JMK_SUBDIRS+=images_google cgi
+else
   JMK_SUBDIRS+=images cgi
+endif
 endif
 
 ifeq ($(CONFIG_RG_SSI_PAGES),y)

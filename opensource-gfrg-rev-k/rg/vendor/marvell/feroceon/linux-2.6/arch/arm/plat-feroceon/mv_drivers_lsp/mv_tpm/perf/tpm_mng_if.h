@@ -876,7 +876,7 @@ typedef struct
 {
   tpm_src_port_type_t  port;
   uint32_t             owner_id;
-  tpm_swport_pm_3_t    tpm_swport_pm_3;
+  tpm_swport_pm_3_all_t tpm_swport_pm_3;
 
 } tpm_ioctl_swport_pm_3_t;
 
@@ -935,7 +935,7 @@ typedef struct
     uint16_t              valid_num;
     uint16_t              unrelated_num;
     uint8_t               lu_reset;
-    uint8_t               dummy;
+    uint8_t               hit_reset;
     tpm_api_entry_count_t count_array[TPM_MAX_LU_ENTRY_NUM];
 } tpm_ioctl_age_count_t;
 

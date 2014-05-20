@@ -190,7 +190,13 @@ static int gluebi_read(struct mtd_info *mtd, loff_t from, size_t len,
 			to_read = total_read;
 
 		err = ubi_read(gluebi->desc, lnum, buf, offs, to_read);
-		if (err)
+		if (err == -EBADMSG)
+		{
+			printk("gluebi: ignoring error in block %d at offset %d, reading %d bytes\n", 
+				lnum, offs, to_read);
+			err = 0;
+		}
+		else if (err)
 			break;
 
 		lnum += 1;

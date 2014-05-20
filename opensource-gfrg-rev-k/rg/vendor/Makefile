@@ -59,6 +59,8 @@ JMK_SUBDIRS+=$(if $(CONFIG_FEROCEON),marvell/feroceon)
 JMK_SUBDIRS+=$(if $(CONFIG_RG_VOIP_MEDIA5),media5)
 JMK_SUBDIRS+=$(if $(CONFIG_MV_WIFI_8764),marvell/wifi8764)
 JMK_LINK_DIRS+=$(if $(CONFIG_MV_WIFI_8764),marvell/wifi8764)
+JMK_SUBDIRS+=$(if $(CONFIG_MV_WIFI_8864),marvell/wifi8864)
+JMK_LINK_DIRS+=$(if $(CONFIG_MV_WIFI_8864),marvell/wifi8864)
 JMK_SUBDIRS+=$(if $(CONFIG_QUANTENNA_QHS_71X),quantenna/qhs71x)
 JMK_SUBDIRS+=actiontec
 
