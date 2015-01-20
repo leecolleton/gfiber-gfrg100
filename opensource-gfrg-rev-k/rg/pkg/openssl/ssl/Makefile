@@ -5,8 +5,9 @@ endif
 OPENSSL_DIR=$(JMK_ROOT)/pkg/openssl
 
 INCLUDES=-I$(OPENSSL_DIR) -I$(OPENSSL_DIR)/crypto
-JMK_CFLAGS+=$(INCLUDES) -DOPENSSL_NO_HEARTBEATS
-JMK_LOCAL_CFLAGS+=$(INCLUDES) -DOPENSSL_NO_HEARTBEATS
+JMK_CFLAGS+=$(INCLUDES)
+JMK_LOCAL_CFLAGS+=$(INCLUDES)
+JMK_LOCAL_CFLAGS+=-DOPENSSL_NO_HEARTBEATS
 
 JMK_O_OBJS=s2_meth.o s2_srvr.o s2_clnt.o s2_lib.o s2_enc.o s2_pkt.o \
 	s3_meth.o s3_srvr.o s3_clnt.o s3_lib.o s3_enc.o s3_pkt.o s3_both.o \
