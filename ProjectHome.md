@@ -1,0 +1,1 @@
+This site hosts the open source and GPL code for the [GFRG100 Residential Gateway](https://fiber.google.com/devices/).
